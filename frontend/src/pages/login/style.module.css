@@ -1,0 +1,131 @@
+.mainContainer {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 85vh;
+  background-color: #f8fafc;
+}
+
+.container {
+  display: flex;
+  width: 100%;
+  max-width: 800px;
+  min-height: 480px;
+  border-radius: 12px;
+  overflow: hidden;
+  background-color: #ffffff;
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.08);
+}
+
+.cardLeft {
+  flex: 1.2;
+  padding: 2.5rem;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+
+.cardLeftText {
+  font-weight: 700;
+  font-size: 2rem;
+  margin-bottom: 1.5rem;
+  color: #1e293b;
+  text-transform: capitalize;
+}
+
+.inputContainers {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.inputrow {
+  display: flex;
+  gap: 1rem;
+}
+
+.inputField {
+  width: 100%;
+  padding: 0.75rem 1rem;
+  border: 1px solid #cbd5e1;
+  border-radius: 6px;
+  font-size: 0.95rem;
+  outline: none;
+  transition: border-color 0.2s ease;
+}
+
+.inputField:focus {
+  border-color: #0070f3;
+}
+
+.btn {
+  margin-top: 0.5rem;
+}
+
+.btnOutline {
+  width: 100%;
+  padding: 0.75rem;
+  background-color: #0070f3;
+  color: white;
+  border: none;
+  border-radius: 6px;
+  font-weight: 600;
+  font-size: 1rem;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+}
+
+.btnOutline:hover {
+  background-color: #005bb5;
+}
+
+.toggleText {
+  margin-top: 1rem;
+  font-size: 0.875rem;
+  color: #0070f3;
+  cursor: pointer;
+  text-align: center;
+}
+
+.cardRight {
+  flex: 0.8;
+  background: #00488b;
+  padding: 2.5rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: white;
+}
+.errorMessage {
+  color: #e11d48; /* Red alert color */
+  font-size: 0.9rem;
+  margin-bottom: 1rem;
+  font-weight: 500;
+}
+/* Container paragraph styling */
+.toggleContainer {
+  color: #ffffff;
+  font-size: 0.95rem;
+  font-weight: 400;
+  margin: 0;
+}
+
+/* Interactive toggle button styling */
+.toggleText {
+  color: #38bdf8; /* Light blue accent color */
+  font-weight: 600;
+  cursor: pointer;
+  margin-left: 0.35rem;
+  transition: all 0.2s ease-in-out;
+  display: inline-block;
+}
+
+.toggleText:hover {
+  color: #7dd3fc;
+  text-decoration: underline;
+  transform: translateY(-1px);
+}
+
+.toggleText:active {
+  transform: translateY(0);
+}
