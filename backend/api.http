@@ -65,3 +65,20 @@ Content-Type: application/json
 {
     "token": "6a3c8fadc87ac9463fd238466a26da668c1be082c01e70b63a9529a1afefb7e0"
 }
+
+### Send Connection Request
+POST http://localhost:5000/user/send_connection_request
+Content-Type: application/json
+
+{
+    "token": "78e496dfc6f9063a68d610fa6481fcd0477aa6416fd7f21563bd46d264882189",
+    "connectionId": "6ac0eb2b7cf635af7346bafe"
+}
+
+### Get My Connection Requests
+GET http://localhost:5000/user/get_my_connections?token=78e496dfc6f9063a68d610fa6481fcd0477aa6416fd7f21563bd46d264882189
+Content-Type: application/json
+
+### Get My Accepted Connections
+GET http://localhost:5000/user/what_are_my_connections?token=78e496dfc6f9063a68d610fa6481fcd0477aa6416fd7f21563bd46d264882189
+Content-Type: application/json

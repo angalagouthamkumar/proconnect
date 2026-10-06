@@ -5,6 +5,7 @@ import { useSelector, useDispatch } from 'react-redux';
 import { getAllUsers, getAboutUser } from '@/config/redux/action/authAction';
 import Styles from './index.module.css';
 import { useRouter } from 'next/router';
+import { sendConnectionRequest } from '@/config/redux/action/authAction';
 
 const BASE_URL = "http://localhost:5000";
 
@@ -14,6 +15,19 @@ export default function Search() {
   const [searchTerm, setSearchTerm] = useState("");
 
   const router = useRouter();
+
+  const handleConnect = async (connectionId) => {
+    const token = localStorage.getItem("token");
+
+    await dispatch(
+      sendConnectionRequest({
+        token,
+        connectionId
+      })
+    );
+
+    dispatch(getAllUsers({ token }));
+  };
 
   useEffect(() => {
     const token = typeof window !== "undefined" ? localStorage.getItem("token") : null;
@@ -125,7 +139,47 @@ export default function Search() {
                         
                       </div>
                     </div>
-                    <button className={Styles.followBtn}>Follow</button>
+                    {user.connectionStatus === "none" && (
+                      <button
+                        className={Styles.followBtn}
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          handleConnect(user._id);
+                        }}
+                      >
+                        Connect
+                      </button>
+                    )}
+
+                    {user.connectionStatus === "pending" && (
+                      <button
+                        className={Styles.followBtn}
+                        disabled
+                        onClick={(e) => e.stopPropagation()}
+                      >
+                        Pending
+                      </button>
+                    )}
+
+                    {user.connectionStatus === "incoming" && (
+                      <button
+                        className={Styles.followBtn}
+                        disabled
+                        onClick={(e) => e.stopPropagation()}
+                      >
+                        Incoming
+                      </button>
+                    )}
+
+                    {user.connectionStatus === "connected" && (
+                      <button
+                        className={Styles.followBtn}
+                        disabled
+                        onClick={(e) => e.stopPropagation()}
+                      >
+                        Connected
+                      </button>
+                    )}
                   </div>
                 );
               })

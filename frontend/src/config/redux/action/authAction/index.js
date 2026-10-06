@@ -79,80 +79,178 @@ export const getAllUsers = createAsyncThunk("user/getAll", async (user, ThunkAPI
 
 export const getUserProfileByUsername = createAsyncThunk(
   "user/getProfileByUsername",
-  async ({ username }, ThunkAPI) => {
+  async ({ username, token }, ThunkAPI) => {
     try {
       const response = await clientServer.get(
-        `/user/user/get_user_profile_based_on_username`,
-        { params: { username } }
+        "/user/get_user_profile_based_on_username",
+        {
+          params: {
+            username,
+            token
+          }
+        }
       );
+
       return ThunkAPI.fulfillWithValue(response.data);
     } catch (error) {
       const errorMsg =
-        error.response?.data?.message || error.message || "User profile not found";
+        error.response?.data?.message ||
+        error.message ||
+        "User profile not found";
+
       return ThunkAPI.rejectWithValue(errorMsg);
     }
   }
 );
 
-export const sendConnectionRequest = createAsyncThunk("user/sendConnectionRequest", async ({ senderId, receiverId }, ThunkAPI) => {
-  try {
-    const response = await clientServer.post("/user/send_connection_request", {
-      token: user.token,
-      connectionId: user._id
-    });
-    return ThunkAPI.fulfillWithValue(response.data);
-  } catch (error) {
-    const errorText = error.response?.data?.message || error.message || "Failed to send connection request";
-    return ThunkAPI.rejectWithValue({
-      text: typeof errorText === "object" ? errorText.message || JSON.stringify(errorText) : errorText,
-      type: "error"
-    });
-  }
-});
+export const sendConnectionRequest = createAsyncThunk(
+  "user/sendConnectionRequest",
+  async ({ token, connectionId }, ThunkAPI) => {
+    try {
+      const response = await clientServer.post(
+        "/user/send_connection_request",
+        {
+          token,
+          connectionId
+        }
+      );
 
-export const getConnectionsRequests = createAsyncThunk("user/getConnectionsRequests", async (user, ThunkAPI) => {
-  try {
-    const response = await clientServer.get("/user/get_my_connections_requests", {
-      params: { token: user.token }
-    });
-    return ThunkAPI.fulfillWithValue(response.data);
-  } catch (error) {
-    const errorText = error.response?.data?.message || error.message || "Failed to fetch connection requests";
-    return ThunkAPI.rejectWithValue({
-      text: typeof errorText === "object" ? errorText.message || JSON.stringify(errorText) : errorText,
-      type: "error"
-    });
-  }
-});
+      return ThunkAPI.fulfillWithValue(response.data);
+    } catch (error) {
+      const errorText =
+        error.response?.data?.message ||
+        error.message ||
+        "Failed to send connection request";
 
-export const get_my_connections_requests = createAsyncThunk("user/get_my_connections_requests", async (user, ThunkAPI) => {
-  try {
-    const response = await clientServer.get("/user/get_my_connections_requests", {
-      params: { token: user.token }
-    });
-    return ThunkAPI.fulfillWithValue(response.data);
-  } catch (error) {
-    const errorText = error.response?.data?.message || error.message || "Failed to fetch connection requests";
-    return ThunkAPI.rejectWithValue({
-      text: typeof errorText === "object" ? errorText.message || JSON.stringify(errorText) : errorText,
-      type: "error"
-    });
+      return ThunkAPI.rejectWithValue({
+        text:
+          typeof errorText === "object"
+            ? errorText.message || JSON.stringify(errorText)
+            : errorText,
+        type: "error"
+      });
+    }
   }
-});
+);
 
-export const acceptConnectionRequest = createAsyncThunk("user/acceptConnectionRequest", async ({ token, connectionId }, ThunkAPI) => {
-  try {
-    const response = await clientServer.post("/user/accept_connection_request", {
-      token,
-      connectionId,
-      actionType: user.actionType
-    });
-    return ThunkAPI.fulfillWithValue(response.data);
-  } catch (error) {
-    const errorText = error.response?.data?.message || error.message || "Failed to accept connection request";
-    return ThunkAPI.rejectWithValue({
-      text: typeof errorText === "object" ? errorText.message || JSON.stringify(errorText) : errorText,
-      type: "error"
-    });
+export const getMyConnectionRequests = createAsyncThunk(
+  "user/getMyConnectionRequests",
+  async ({ token }, ThunkAPI) => {
+    try {
+      const response = await clientServer.get(
+        "/user/get_my_connections",
+        {
+          params: {
+            token
+          }
+        }
+      );
+
+      return ThunkAPI.fulfillWithValue(response.data);
+    } catch (error) {
+      const errorText =
+        error.response?.data?.message ||
+        error.message ||
+        "Failed to fetch connection requests";
+
+      return ThunkAPI.rejectWithValue({
+        text:
+          typeof errorText === "object"
+            ? errorText.message || JSON.stringify(errorText)
+            : errorText,
+        type: "error"
+      });
+    }
   }
-});
+);
+
+export const getMyConnections = createAsyncThunk(
+  "user/getMyConnections",
+  async ({ token }, ThunkAPI) => {
+    try {
+      const response = await clientServer.get(
+        "/user/what_are_my_connections",
+        {
+          params: {
+            token
+          }
+        }
+      );
+
+      return ThunkAPI.fulfillWithValue(response.data);
+    } catch (error) {
+      const errorText =
+        error.response?.data?.message ||
+        error.message ||
+        "Failed to fetch connections";
+
+      return ThunkAPI.rejectWithValue({
+        text:
+          typeof errorText === "object"
+            ? errorText.message || JSON.stringify(errorText)
+            : errorText,
+        type: "error"
+      });
+    }
+  }
+);
+
+export const acceptConnectionRequest = createAsyncThunk(
+  "user/acceptConnectionRequest",
+  async ({ token, requestId }, ThunkAPI) => {
+    try {
+      const response = await clientServer.post(
+        "/user/accept_connection_request",
+        {
+          token,
+          requestId
+        }
+      );
+
+      return ThunkAPI.fulfillWithValue(response.data);
+    } catch (error) {
+      const errorText =
+        error.response?.data?.message ||
+        error.message ||
+        "Failed to accept connection request";
+
+      return ThunkAPI.rejectWithValue({
+        text:
+          typeof errorText === "object"
+            ? errorText.message || JSON.stringify(errorText)
+            : errorText,
+        type: "error"
+      });
+    }
+  }
+);
+
+export const rejectConnectionRequest = createAsyncThunk(
+  "user/rejectConnectionRequest",
+  async ({ token, requestId }, ThunkAPI) => {
+    try {
+      const response = await clientServer.post(
+        "/user/reject_connection_request",
+        {
+          token,
+          requestId
+        }
+      );
+
+      return ThunkAPI.fulfillWithValue(response.data);
+    } catch (error) {
+      const errorText =
+        error.response?.data?.message ||
+        error.message ||
+        "Failed to reject connection request";
+
+      return ThunkAPI.rejectWithValue({
+        text:
+          typeof errorText === "object"
+            ? errorText.message || JSON.stringify(errorText)
+            : errorText,
+        type: "error"
+      });
+    }
+  }
+);

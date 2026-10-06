@@ -1,9 +1,14 @@
 import { createSlice } from "@reduxjs/toolkit";
+
 import {
   loginUser,
   registerUser,
   getAboutUser,
-  getAllUsers
+  getAllUsers,
+  getMyConnectionRequests,
+  getMyConnections,
+  acceptConnectionRequest,
+  rejectConnectionRequest
 } from "../../action/authAction";
 
 const initialState = {
@@ -14,8 +19,10 @@ const initialState = {
   message: null,
   isToken: false,
   profileFetched: false,
+
   connections: [],
   connectionRequests: [],
+
   token: null,
   loading: false,
   allProfiles: [],
@@ -55,7 +62,7 @@ const authSlice = createSlice({
 
   extraReducers: (builder) => {
     builder
-      // LOGIN CASES
+
       .addCase(loginUser.pending, (state) => {
         state.loading = true;
         state.isError = false;
@@ -71,6 +78,7 @@ const authSlice = createSlice({
         state.isSuccess = true;
         state.profileFetched = true;
         state.LoggedIn = true;
+        state.isToken = true;
         state.token = action.payload?.token || null;
 
         state.message = {
@@ -83,13 +91,14 @@ const authSlice = createSlice({
         state.loading = false;
         state.isError = true;
         state.isSuccess = false;
+
         state.message = action.payload || {
           text: "Login failed",
           type: "error"
         };
       })
 
-      // REGISTER CASES
+
       .addCase(registerUser.pending, (state) => {
         state.loading = true;
         state.isError = false;
@@ -104,6 +113,7 @@ const authSlice = createSlice({
         state.isError = false;
         state.isSuccess = true;
         state.LoggedIn = true;
+        state.isToken = true;
         state.profileFetched = true;
         state.token = action.payload?.token || null;
 
@@ -117,13 +127,14 @@ const authSlice = createSlice({
         state.loading = false;
         state.isError = true;
         state.isSuccess = false;
+
         state.message = action.payload || {
           text: "Registration failed",
           type: "error"
         };
       })
 
-      // GET ABOUT USER CASES
+
       .addCase(getAboutUser.pending, (state) => {
         state.loading = true;
       })
@@ -131,7 +142,7 @@ const authSlice = createSlice({
       .addCase(getAboutUser.fulfilled, (state, action) => {
         state.loading = false;
         state.profileFetched = true;
-        state.user = action.payload.user;
+        state.user = action.payload?.user || null;
       })
 
       .addCase(getAboutUser.rejected, (state) => {
@@ -139,21 +150,137 @@ const authSlice = createSlice({
         state.isError = true;
       })
 
-      // GET ALL USERS CASES
+
       .addCase(getAllUsers.pending, (state) => {
         state.loading = true;
+        state.isError = false;
       })
 
       .addCase(getAllUsers.fulfilled, (state, action) => {
         state.loading = false;
-        state.allProfiles = action.payload.users || action.payload.profiles || action.payload || [];
-        state.connections = action.payload.connections || [];
-        state.connectionRequests = action.payload.profile || [];
+
+        state.allProfiles =
+          action.payload?.users ||
+          action.payload?.profiles ||
+          [];
+
+        state.connections =
+          action.payload?.connections || [];
+
+        state.connectionRequests =
+          action.payload?.connectionRequests || [];
       })
 
       .addCase(getAllUsers.rejected, (state) => {
         state.loading = false;
         state.isError = true;
+      })
+
+
+      .addCase(getMyConnectionRequests.pending, (state) => {
+        state.loading = true;
+        state.isError = false;
+      })
+
+      .addCase(getMyConnectionRequests.fulfilled, (state, action) => {
+        state.loading = false;
+        state.isError = false;
+
+        state.connectionRequests =
+          action.payload?.connectionRequests ||
+          action.payload?.requests ||
+          action.payload ||
+          [];
+      })
+
+      .addCase(getMyConnectionRequests.rejected, (state, action) => {
+        state.loading = false;
+        state.isError = true;
+
+        state.message = action.payload || {
+          text: "Failed to fetch connection requests",
+          type: "error"
+        };
+      })
+
+
+      .addCase(getMyConnections.pending, (state) => {
+        state.loading = true;
+        state.isError = false;
+      })
+
+      .addCase(getMyConnections.fulfilled, (state, action) => {
+        state.loading = false;
+        state.isError = false;
+
+        state.connections =
+          action.payload?.connections ||
+          action.payload ||
+          [];
+      })
+
+      .addCase(getMyConnections.rejected, (state, action) => {
+        state.loading = false;
+        state.isError = true;
+
+        state.message = action.payload || {
+          text: "Failed to fetch connections",
+          type: "error"
+        };
+      })
+
+
+      .addCase(acceptConnectionRequest.pending, (state) => {
+        state.loading = true;
+      })
+
+      .addCase(acceptConnectionRequest.fulfilled, (state, action) => {
+        state.loading = false;
+        state.isError = false;
+
+        state.message = {
+          text:
+            action.payload?.message ||
+            "Connection request accepted",
+          type: "success"
+        };
+      })
+
+      .addCase(acceptConnectionRequest.rejected, (state, action) => {
+        state.loading = false;
+        state.isError = true;
+
+        state.message = action.payload || {
+          text: "Failed to accept connection request",
+          type: "error"
+        };
+      })
+
+
+      .addCase(rejectConnectionRequest.pending, (state) => {
+        state.loading = true;
+      })
+
+      .addCase(rejectConnectionRequest.fulfilled, (state, action) => {
+        state.loading = false;
+        state.isError = false;
+
+        state.message = {
+          text:
+            action.payload?.message ||
+            "Connection request rejected",
+          type: "success"
+        };
+      })
+
+      .addCase(rejectConnectionRequest.rejected, (state, action) => {
+        state.loading = false;
+        state.isError = true;
+
+        state.message = action.payload || {
+          text: "Failed to reject connection request",
+          type: "error"
+        };
       });
   }
 });

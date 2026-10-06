@@ -1,16 +1,100 @@
-import React from 'react'
-import UserLayout from '@/layout/userLayout'
-import DashboardLayout from '@/layout/dashboardLayout' 
+import React, { use, useEffect } from "react";
+import UserLayout from "@/layout/userLayout";
+import DashboardLayout from "@/layout/dashboardLayout";
+import { useDispatch } from "react-redux";
+import { useSelector } from "react-redux";
+import Styles from "./index.module.css";
+import {
+  getMyConnectionRequests,
+  acceptConnectionRequest,
+  rejectConnectionRequest,
+  getMyConnections
+} from "@/config/redux/action/authAction";
 
 export default function MyConnections() {
+  const dispatch = useDispatch();
+  const authState = useSelector((state) => state.auth);
+
+  
+
+  useEffect(() => {
+    dispatch(getMyConnectionRequests({token : localStorage.getItem("token")}));
+  }, [dispatch]);
+
+  useEffect(() => {
+    if(authState.connectionRequests.length !== 0) {
+      console.log("Connection Requests:", authState.connectionRequests);
+    }
+  }, [authState.connectionRequests]);
+
+
+  const handleAccept = async (requestId) => {
+    const token = localStorage.getItem("token");
+
+    await dispatch(
+      acceptConnectionRequest({
+        token,
+        requestId
+      })
+    );
+
+    dispatch(getMyConnectionRequests({ token }));
+    dispatch(getMyConnections({ token }));
+  };
+
+  const handleReject = async (requestId) => {
+    const token = localStorage.getItem("token");
+
+    await dispatch(
+      rejectConnectionRequest({
+        token,
+        requestId
+      })
+    );
+
+    dispatch(getMyConnectionRequests({ token }));
+  };
+
   return (
     <UserLayout>
-        <DashboardLayout>
-            {/* {authState.profileFetched && authState.user && (
-                <div>Hey {authState.user.name}</div>
-            )} */}
-            <h1>My Connections</h1>
-        </DashboardLayout>
+      <DashboardLayout>
+        <div className={Styles.page}>
+          <h1 className={Styles.title}>My Connections</h1>
+
+          {authState.connectionRequests.length === 0 ? (
+            <p className={Styles.empty}>No connection requests found.</p>
+          ) : (
+            <div className={Styles.list}>
+              {authState.connectionRequests.map((request) => (
+                <div key={request._id}>
+                  <h2>{request.userId?.name}</h2>
+
+                  <p>{request.userId?.username}</p>
+
+                  {request.userId?.profilePicture && (
+                    <img
+                      src={request.userId.profilePicture}
+                      alt={request.userId.name}
+                    />
+                  )}
+
+                  <button
+                    onClick={() => handleAccept(request._id)}
+                  >
+                    Accept
+                  </button>
+
+                  <button
+                    onClick={() => handleReject(request._id)}
+                  >
+                    Reject
+                  </button>
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
+      </DashboardLayout>
     </UserLayout>
-  )
+  );
 }
