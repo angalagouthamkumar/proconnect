@@ -26,7 +26,7 @@ export const createPost = async (req, res) => {
         const newPost = new Post({
             userId: user._id,
             body: postContent.trim(),
-            media: req.file != undefined ? req.file.path : "",
+            media: req.file != undefined ? [req.file.path.replace(/\\/g, "/")] : [],
             filetype: req.file != undefined ? req.file.mimetype.split("/")[1] : "",
         });
 
@@ -185,6 +185,7 @@ export const incrementLikes = async (req, res) => {
 
         post.likes += 1;
         await post.save();
+        await post.populate("userId", "name username email profilePicture");
 
         return res.status(200).json({ message: "Post liked successfully", post });
     } catch (error) {

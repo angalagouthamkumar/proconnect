@@ -39,11 +39,7 @@ export const createPost = createAsyncThunk(
       formData.append("body", typeof body === "object" ? body.body : body);
 
       // Endpoint path matching app.use('/posts') + router.route('/post')
-      const response = await clientServer.post("/posts/post", formData, {
-        headers: {
-          "Content-Type": "multipart/form-data",
-        },
-      });
+      const response = await clientServer.post("/posts/post", formData);
 
       if (response.status === 200 || response.status === 201) {
         ThunkAPI.dispatch(getallposts());

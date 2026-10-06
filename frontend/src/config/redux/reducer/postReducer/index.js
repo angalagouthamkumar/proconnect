@@ -52,7 +52,14 @@ const postSlice = createSlice({
         if (updatedPost && updatedPost._id) {
           const index = state.posts.findIndex((p) => p._id === updatedPost._id);
           if (index !== -1) {
-            state.posts[index] = updatedPost;
+            const currentPost = state.posts[index];
+            const hasPopulatedUser =
+              updatedPost.userId && typeof updatedPost.userId === "object";
+            state.posts[index] = {
+              ...currentPost,
+              ...updatedPost,
+              userId: hasPopulatedUser ? updatedPost.userId : currentPost.userId,
+            };
           }
         }
       })
