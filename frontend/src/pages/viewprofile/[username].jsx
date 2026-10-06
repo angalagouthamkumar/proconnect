@@ -8,10 +8,11 @@ import {
   addComment,
   deletePost,
 } from "@/config/redux/action/postAction";
-import { getAboutUser } from "@/config/redux/action/authAction";
+import { getAboutUser, getAllUsers } from "@/config/redux/action/authAction";
 import { resetpostid } from "@/config/redux/reducer/postReducer";
 import UserLayout from "@/layout/userLayout";
 import DashboardLayout from "@/layout/dashboardLayout";
+import { sendConnectionRequest } from '@/config/redux/action/authAction';
 
 import Styles from "./index.module.css";
 
@@ -29,6 +30,10 @@ export default function ViewProfile() {
 
   const [commentText, setCommentText] = useState("");
 
+  
+
+  
+
   useEffect(() => {
     const token =
       typeof window !== "undefined" ? localStorage.getItem("token") : null;
@@ -38,6 +43,7 @@ export default function ViewProfile() {
     }
 
     dispatch(getallposts());
+    dispatch(getAllUsers({ token }));
 
     if (!authState.user || !authState.profileFetched) {
       dispatch(getAboutUser({ token }));
@@ -56,6 +62,25 @@ export default function ViewProfile() {
     if (cleanPath.startsWith("/")) cleanPath = cleanPath.slice(1);
 
     return encodeURI(`${BASE_URL}/${cleanPath}`);
+  };
+  const handleConnect = async (connectionId) => {
+    const token = localStorage.getItem("token");
+
+    try {
+      const result = await dispatch(
+        sendConnectionRequest({
+          token,
+          connectionId,
+        })
+      );
+
+      if (sendConnectionRequest.fulfilled.match(result)) {
+        await dispatch(getAllUsers({ token }));
+        await dispatch(getallposts());
+      }
+    } catch (error) {
+      console.error("Connection request failed:", error);
+    }
   };
 
   const handleDelete = async (postId) => {
@@ -100,6 +125,13 @@ export default function ViewProfile() {
     })
     .sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
 
+    const profilesList =
+      Array.isArray(authState.allProfiles) && authState.allProfiles.length > 0
+        ? authState.allProfiles
+        : Array.isArray(authState.connections)
+        ? authState.connections
+        : [];
+
   return (
     <UserLayout>
       <DashboardLayout>
@@ -115,8 +147,19 @@ export default function ViewProfile() {
           {/* Posts Feed */}
           {userPosts.length > 0 ? (
             userPosts.map((post) => {
-              const userObj =
+              const postUser =
                 typeof post.userId === "object" ? post.userId : {};
+
+              const matchedProfile = profilesList.find((item) => {
+                const user = item.userId || item;
+
+                return (
+                  String(user._id) ===
+                  String(postUser._id)
+                );
+              });
+
+              const userObj = matchedProfile?.userId || matchedProfile || postUser;
               const userPic = userObj.profilePicture;
               const userName = userObj.username || userObj.name || username || "User";
               const postAuthorId = userObj._id || userObj.id || post.userId;
@@ -161,6 +204,47 @@ export default function ViewProfile() {
                         </div>
                       )}
                       <span className={Styles.username}>@{userName}</span>
+                      {userObj.connectionStatus === "none" && (
+                        <button
+                          className={Styles.followBtn}
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            handleConnect(userObj._id);
+                          }}
+                        >
+                          Connect
+                        </button>
+                      )}
+
+                      {userObj.connectionStatus === "pending" && (
+                        <button
+                          className={Styles.followBtn}
+                          disabled
+                          onClick={(e) => e.stopPropagation()}
+                        >
+                          Pending
+                        </button>
+                      )}
+
+                      {userObj.connectionStatus === "incoming" && (
+                        <button
+                          className={Styles.followBtn}
+                          disabled
+                          onClick={(e) => e.stopPropagation()}
+                        >
+                          Incoming
+                        </button>
+                      )}
+
+                      {userObj.connectionStatus === "connected" && (
+                        <button
+                          className={Styles.followBtn}
+                          disabled
+                          onClick={(e) => e.stopPropagation()}
+                        >
+                          Connected
+                        </button>
+                      )}
                     </div>
 
                     {/* Delete Button */}

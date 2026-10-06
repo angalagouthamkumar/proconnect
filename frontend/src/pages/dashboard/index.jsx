@@ -9,11 +9,12 @@ import {
   getCommentsByPost,
   addComment,
 } from "@/config/redux/action/postAction";
-import { getAboutUser } from "@/config/redux/action/authAction";
+import { getAboutUser, getAllUsers } from "@/config/redux/action/authAction";
 import { resetpostid } from "@/config/redux/reducer/postReducer";
 import UserLayout from "@/layout/userLayout";
 import DashboardLayout from "@/layout/dashboardLayout";
 import Styles from "./style.module.css";
+import { sendConnectionRequest } from '@/config/redux/action/authAction';
 
 const BASE_URL = "http://localhost:5000";
 
@@ -40,6 +41,7 @@ export default function Dashboard() {
     }
 
     dispatch(getallposts());
+    dispatch(getAllUsers({ token }));
 
     if (!authState.user || !authState.profileFetched) {
       dispatch(getAboutUser({ token }));
@@ -90,6 +92,26 @@ export default function Dashboard() {
       setCommentText("");
     }
   };
+
+  const handleConnect = async (connectionId) => {
+    const token = localStorage.getItem("token");
+
+    try {
+      const result = await dispatch(
+        sendConnectionRequest({
+          token,
+          connectionId,
+        })
+      );
+
+      if (sendConnectionRequest.fulfilled.match(result)) {
+        await dispatch(getAllUsers({ token }));
+        await dispatch(getallposts());
+      }
+    } catch (error) {
+      console.error("Connection request failed:", error);
+    }
+};
 
   const rawPosts = Array.isArray(postState?.posts)
     ? postState.posts
@@ -189,6 +211,12 @@ export default function Dashboard() {
 
     return encodeURI(`${BASE_URL}/${cleanPath}`);
   };
+  const profilesList =
+      Array.isArray(authState.allProfiles) && authState.allProfiles.length > 0
+        ? authState.allProfiles
+        : Array.isArray(authState.connections)
+        ? authState.connections
+        : [];
 
   return (
     <UserLayout>
@@ -271,11 +299,27 @@ export default function Dashboard() {
           <div className={Styles.postContainer}>
             {postsList.length > 0 ? (
               postsList.map((post) => {
-                const liveUser = post.userId && typeof post.userId === "object"
-                  ? post.userId
-                  : {};
+                const liveUser =
+                  post.userId && typeof post.userId === "object"
+                    ? post.userId
+                    : {};
+
+                const matchedProfile = profilesList.find((item) => {
+                  const user = item.userId || item;
+
+                  return String(user._id) === String(
+                    liveUser._id ||
+                    liveUser.id ||
+                    post.userId
+                  );
+                });
+
+                const profileUser =
+                  matchedProfile?.userId || matchedProfile || {};
+
                 const userObj = {
                   ...(authorCache.current[String(post._id)] || {}),
+                  ...profileUser,
                   ...liveUser,
                 };
                 const userPic = userObj.profilePicture;
@@ -325,6 +369,47 @@ export default function Dashboard() {
                           </div>
                         )}
                         <span className={Styles.username}>{userName}</span>
+                        {userObj.connectionStatus === "none" && (
+                        <button
+                          className={Styles.followBtn}
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            handleConnect(userObj._id);
+                          }}
+                        >
+                          Connect
+                        </button>
+                      )}
+
+                      {userObj.connectionStatus === "pending" && (
+                        <button
+                          className={Styles.followBtn}
+                          disabled
+                          onClick={(e) => e.stopPropagation()}
+                        >
+                          Pending
+                        </button>
+                      )}
+
+                      {userObj.connectionStatus === "incoming" && (
+                        <button
+                          className={Styles.followBtn}
+                          disabled
+                          onClick={(e) => e.stopPropagation()}
+                        >
+                          Incoming
+                        </button>
+                      )}
+
+                      {userObj.connectionStatus === "connected" && (
+                        <button
+                          className={Styles.followBtn}
+                          disabled
+                          onClick={(e) => e.stopPropagation()}
+                        >
+                          Connected
+                        </button>
+                      )}
                       </div>
 
                       {/* Delete Icon Button */}
