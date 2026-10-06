@@ -139,6 +139,9 @@ const register = async (req, res) => {
         return res.status(201).json({ message: "User registered successfully" });
     }
     catch (error) {
+        if (error.code === 11000 && (error.keyPattern?.username || error.keyValue?.username || (error.message && error.message.includes("username")))) {
+            return res.status(409).json({ message: "Username already taken" });
+        }
         return res.status(500).json({ message: "Registration failed", error: error.message });
     }
 };

@@ -36,7 +36,7 @@ export default function Navbar() {
           <div className={Style.navright} style={{ display: 'flex', gap: '10px', alignItems: 'center' }}>
             {isAuthenticated ? (
               <>
-                <div onClick={() => router.push("/dashboard")} className={Style.navbutton}>
+                <div onClick={() => router.push("/dashboard")} className={Style.username}>
                   {authState.profileFetched && authState.user && (
                     <div>Hey {authState.user.name}</div>
                   )}
