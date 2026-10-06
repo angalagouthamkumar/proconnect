@@ -1,40 +1,83 @@
 .container {
-  padding: 1.2rem;
+  padding: var(--space-6) var(--space-8) 0;
 }
+
 .nav {
   display: flex;
   align-items: center;
   justify-content: space-between;
+  min-height: 64px;
+  padding: 0 var(--space-5);
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-xl);
 }
+
+.nav h2 {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  font-size: var(--text-xl);
+  font-weight: 700;
+  color: var(--color-primary);
+}
+
 .navright {
   display: flex;
+  align-items: center;
+  gap: var(--space-3);
 }
 
 .navbutton {
-  width: fit-content;
-  background-color: #0070f3;
-  color: #ffffff;
-  font-size: 0.95rem;
-  font-weight: 600;
-  padding: 0.65rem 1.4rem;
-  border-radius: 9999px; /* Pill shape */
-  border: none;
-  cursor: pointer;
-  user-select: none;
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  transition: all 0.2s ease-in-out;
-  box-shadow: 0 2px 6px rgba(0, 112, 243, 0.25);
+  min-height: var(--target);
+  padding: 0 var(--space-5);
+  background: var(--color-surface);
+  color: var(--color-ink);
+  border: 1px solid var(--color-border-strong);
+  border-radius: var(--radius-pill);
+  font-weight: 600;
+  cursor: pointer;
+  user-select: none;
+  transition: background-color var(--duration-fast) ease;
 }
 
 .navbutton:hover {
-  background-color: #005bb5;
-  transform: translateY(-1px);
-  box-shadow: 0 4px 12px rgba(0, 112, 243, 0.35);
+  background: var(--color-hover);
 }
 
 .navbutton:active {
-  transform: translateY(0);
-  box-shadow: 0 2px 4px rgba(0, 112, 243, 0.2);
+  background: var(--color-primary-soft);
+}
+
+/* Optional: add to the "Be a part of us" button only */
+.navbuttonPrimary {
+  background: var(--color-primary);
+  color: var(--color-on-primary);
+  border-color: var(--color-primary);
+}
+
+.navbuttonPrimary:hover {
+  background: var(--color-primary-hover);
+}
+
+.navbuttonGhost {
+  background: transparent;
+  border-color: transparent;
+  color: var(--color-muted);
+}
+
+.logoMark {
+  width: 28px;
+  height: 28px;
+  border-radius: var(--radius-md);
+  background: linear-gradient(135deg, #059669, #2563eb);
+}
+
+@media (max-width: 768px) {
+  .container {
+    padding: var(--space-4) var(--space-4) 0;
+  }
 }

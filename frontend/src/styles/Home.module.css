@@ -1,63 +1,68 @@
 .container {
-  font-family: "Poppins";
-  padding: 1.2rem;
+  min-height: calc(100vh - 100px);
+  padding: var(--space-8);
 }
 
 .mainContainer {
-  display: flex;
-  justify-content: center;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
   align-items: center;
-  gap: 4rem;
-  padding-inline: 2rem;
-  height: 80vh;
+  gap: var(--space-8);
+  max-width: 1100px;
+  margin: 0 auto;
+  padding-top: var(--space-8);
 }
 
 .mainContainerLeft {
-  flex: 0.5;
-}
-
-.mainContainerRight {
-  flex: 0.5;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: var(--space-5);
 }
 
 .mainContainerLeft > p:nth-child(1) {
-  font-size: 2.9rem;
-  background: linear-gradient(90deg, rgba(255, 0, 150, 1) 0%, rgba(0, 204, 255, 1) 100%);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  /* animation: animationHomePageBreathEffect 3s ease-in-out infinite; */
+  font-size: 48px;
+  font-weight: 700;
+  line-height: 1.1;
 }
 
-/* @keyframes animationHomePageBreathEffect {
-  0% {
-    background-position: 0% 50%;
-    opacity: 1;
-  }
-  50% {
-    background-position: 100% 50%;
-    opacity: 0.5;
-  }
-  100% {
-    background-position: 0% 50%;
-    opacity: 1;
-  }
-} */
-
 .mainContainerLeft > p:nth-child(2) {
-  color: #4D4D4D;
-  font-size: 1.7rem;
+  font-size: 20px;
+  color: var(--color-muted);
 }
 
 .buttonJoin {
-  width: fit-content;
-  background-color: #0070f3;
-  color: white;
-  user-select: none;
-  transition: all 0.3s ease-in-out;
-  margin-top: 0.8rem;
-  font-size: 1.4rem;
-  padding-inline: 1.2rem;
-  padding-block: 0.6rem;
-  border-radius: 20px;
+  border: 0;
+  font: inherit;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 52px;
+  padding: 0 28px;
+  background: var(--color-primary);
+  color: var(--color-on-primary);
+  border-radius: var(--radius-pill);
+  font-weight: 600;
+  cursor: pointer;
+  transition: background-color var(--duration-fast) ease;
 }
 
+.buttonJoin:hover {
+  background: var(--color-primary-hover);
+}
+
+.mainContainerRight img {
+  display: block;
+  width: 100%;
+  height: auto;
+  border-radius: var(--radius-xl);
+}
+
+@media (max-width: 768px) {
+  .mainContainer {
+    grid-template-columns: 1fr;
+  }
+  .mainContainerLeft > p:nth-child(1) {
+    font-size: 34px;
+  }
+}

@@ -1,132 +1,140 @@
 .searchContainer {
-  max-width: 500px;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+  width: 100%;
+  max-width: 640px;
   margin: 0 auto;
-  padding: 20px 16px;
-  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-}
-
-/* Search Bar Wrapper */
-.searchHeader {
-  margin-bottom: 24px;
 }
 
 .searchInputWrapper {
   position: relative;
   display: flex;
   align-items: center;
-  background-color: #efefef;
-  border-radius: 8px;
-  padding: 8px 12px;
 }
 
 .searchIcon {
-  width: 18px;
-  height: 18px;
-  color: #8e8e8e;
-  margin-right: 8px;
-  flex-shrink: 0;
+  position: absolute;
+  left: var(--space-4);
+  width: 20px;
+  height: 20px;
+  color: var(--color-muted);
+  pointer-events: none;
 }
 
 .searchInput {
-  border: none;
-  background: transparent;
-  outline: none;
   width: 100%;
-  font-size: 14px;
-  color: #262626;
+  min-height: 48px;
+  padding: 0 52px;
+  background: var(--color-surface);
+  border: 1px solid var(--color-border-strong);
+  border-radius: var(--radius-pill);
+}
+
+.searchInput:focus {
+  border-color: var(--color-primary);
+  outline: none;
 }
 
 .clearBtn {
-  background: none;
-  border: none;
-  font-size: 16px;
-  color: #8e8e8e;
-  cursor: pointer;
-  padding: 0 4px;
+  position: absolute;
+  right: var(--space-1);
+  width: var(--target);
+  height: var(--target);
+  background: transparent;
+  border: 0;
+  border-radius: var(--radius-pill);
+  font-size: 22px;
+  line-height: 1;
+  color: var(--color-muted);
 }
 
-/* User List */
+.clearBtn:hover {
+  background: var(--color-hover);
+}
+
 .usersList {
-  display: flex;
-  flex-direction: column;
-  gap: 16px;
+  padding: var(--space-2);
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-xl);
 }
 
 .userCard {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 4px 0;
+  gap: var(--space-3);
+  padding: var(--space-3);
+  border-radius: var(--radius-lg);
   cursor: pointer;
+  transition: background-color var(--duration-fast) ease;
+}
+
+.userCard:hover {
+  background: var(--color-hover);
 }
 
 .userInfoLeft {
   display: flex;
   align-items: center;
-  gap: 12px;
+  gap: var(--space-3);
+  min-width: 0;
+}
+
+.avatarImg,
+.avatarFallback {
+  width: 48px;
+  height: 48px;
+  flex: none;
+  border-radius: var(--radius-pill);
 }
 
 .avatarImg {
-  width: 44px;
-  height: 44px;
-  border-radius: 50%;
   object-fit: cover;
-  border: 1px solid #dbdbdb;
 }
 
 .avatarFallback {
-  width: 44px;
-  height: 44px;
-  border-radius: 50%;
-  background-color: #efefef;
   display: flex;
   align-items: center;
   justify-content: center;
+  background: var(--color-primary-soft);
+  color: var(--color-primary);
   font-weight: 600;
-  font-size: 16px;
-  color: #262626;
-  flex-shrink: 0;
 }
 
 .userTextDetails {
   display: flex;
   flex-direction: column;
+  min-width: 0;
 }
 
 .usernameText {
   font-weight: 600;
-  font-size: 14px;
-  color: #262626;
-  line-height: 1.2;
 }
 
 .nameText {
-  font-size: 14px;
-  color: #8e8e8e;
-  line-height: 1.2;
-  margin-top: 2px;
+  font-size: var(--text-sm);
+  color: var(--color-muted);
 }
 
-/* Follow Button */
 .followBtn {
-  background-color: #0095f6;
-  color: #ffffff;
-  border: none;
-  padding: 7px 16px;
-  border-radius: 8px;
+  min-height: var(--target);
+  padding: 0 var(--space-5);
+  background: var(--color-surface);
+  color: var(--color-primary);
+  border: 1px solid var(--color-primary);
+  border-radius: var(--radius-pill);
   font-weight: 600;
-  font-size: 14px;
-  cursor: pointer;
-  transition: background-color 0.2s ease;
+  transition: background-color var(--duration-fast) ease;
 }
 
 .followBtn:hover {
-  background-color: #1877f2;
+  background: var(--color-primary-soft);
 }
 
 .noResults {
+  padding: var(--space-8);
   text-align: center;
-  color: #8e8e8e;
-  font-size: 14px;
-  margin-top: 40px;
+  color: var(--color-muted);
 }

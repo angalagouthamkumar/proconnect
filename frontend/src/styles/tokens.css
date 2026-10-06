@@ -1,0 +1,48 @@
+:root {
+  /* Color */
+  --color-primary: #047857;
+  --color-primary-hover: #065f46;
+  --color-primary-soft: #d1fae5;
+  --color-on-primary: #ffffff;
+  --color-ink: #0f1a14;
+  --color-muted: #4b5a52;
+  --color-bg: #f4f7f5;
+  --color-surface: #ffffff;
+  --color-hover: #ecf3ef;
+  --color-border: #e3e8e5;
+  --color-border-strong: #cbd5d0;
+  --color-like: #e11d48;
+  --color-danger: #be123c;
+  --color-danger-soft: #ffe4e6;
+  --color-disabled-bg: #d1d5db;
+  --color-disabled-text: #374151;
+  --color-overlay: rgba(15, 26, 20, 0.5);
+
+  /* Spacing (4px base) */
+  --space-1: 4px;
+  --space-2: 8px;
+  --space-3: 12px;
+  --space-4: 16px;
+  --space-5: 20px;
+  --space-6: 24px;
+  --space-8: 32px;
+
+  /* Radius */
+  --radius-md: 10px;
+  --radius-lg: 14px;
+  --radius-xl: 22px;
+  --radius-pill: 999px;
+
+  /* Type */
+  --font-sans: "Plus Jakarta Sans", ui-sans-serif, system-ui, sans-serif;
+  --text-sm: 13px;
+  --text-base: 15px;
+  --text-lg: 17px;
+  --text-xl: 22px;
+  --text-2xl: 32px;
+
+  /* Elevation and motion */
+  --shadow-lg: 0 20px 25px -5px rgba(15, 26, 20, 0.12), 0 8px 10px -6px rgba(15, 26, 20, 0.12);
+  --duration-fast: 0.15s;
+  --target: 44px;
+}
