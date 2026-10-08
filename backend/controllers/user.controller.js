@@ -187,24 +187,53 @@ const uploadprofilepicture = async (req, res) => {
 };
 
 const updateUserProfile = async (req, res) => {
-    const { token, ...newuserdata} = req.body;
+    const { token, name, username } = req.body;
     try {
+        // Authorization: the account being edited is always the owner of this token
         const user = await User.findOne({ token: token });
         if (!user) {
             return res.status(401).json({ message: "Unauthorized" });
         }
-        const [username, email] = newuserdata;
-        const existingUser = await User.findOne({ $or: [{ email }, { username }] });
-        if (existingUser) {
-            if(existingUser|| existingUser._id.toString() !== user._id.toString()) {
-                return res.status(400).json({ message: "Email is already in use" });
+
+        if (typeof username === "string" && username.trim() && username.trim() !== user.username) {
+            const cleanUsername = username.trim();
+            if (!/^[A-Za-z0-9_.]{3,30}$/.test(cleanUsername)) {
+                return res.status(400).json({ message: "Username must be 3-30 characters: letters, numbers, _ or ." });
             }
+            const taken = await User.findOne({
+                username: new RegExp("^" + cleanUsername.replace(/\./g, "\\.") + "$", "i"),
+                _id: { $ne: user._id },
+            });
+            if (taken) {
+                return res.status(400).json({ message: "Username is already taken" });
+            }
+            user.username = cleanUsername;
         }
 
+        if (typeof name === "string" && name.trim()) {
+            if (name.trim().length > 60) {
+                return res.status(400).json({ message: "Name must be 60 characters or fewer" });
+            }
+            user.name = name.trim();
+        }
+
+        user.updatedAt = Date.now();
         await user.save();
 
-        return res.status(200).json({ message: "User profile updated successfully", user });
+        return res.status(200).json({
+            message: "User profile updated successfully",
+            user: {
+                _id: user._id,
+                name: user.name,
+                username: user.username,
+                email: user.email,
+                profilePicture: user.profilePicture,
+            },
+        });
     } catch (error) {
+        if (error.code === 11000) {
+            return res.status(400).json({ message: "Username is already taken" });
+        }
         return res.status(500).json({ message: "User profile update failed", error: error.message });
     }
 };

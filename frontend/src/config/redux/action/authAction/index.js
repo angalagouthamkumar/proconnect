@@ -254,3 +254,49 @@ export const rejectConnectionRequest = createAsyncThunk(
     }
   }
 );
+
+export const updateUserDetails = createAsyncThunk(
+  "user/updateUserDetails",
+  async ({ token, name, username }, ThunkAPI) => {
+    try {
+      const response = await clientServer.post("/user/user_update", { token, name, username });
+      return ThunkAPI.fulfillWithValue(response.data);
+    } catch (error) {
+      const errorText = error.response?.data?.message || error.message || "Failed to update details";
+      return ThunkAPI.rejectWithValue({ text: errorText, type: "error" });
+    }
+  }
+);
+
+export const updateProfileInfo = createAsyncThunk(
+  "user/updateProfileInfo",
+  async ({ token, bio, currentwork, postwork, education }, ThunkAPI) => {
+    try {
+      const response = await clientServer.post("/user/update_profile_data", {
+        token, bio, currentwork, postwork, education,
+      });
+      return ThunkAPI.fulfillWithValue(response.data);
+    } catch (error) {
+      const errorText = error.response?.data?.message || error.message || "Failed to update profile";
+      return ThunkAPI.rejectWithValue({ text: errorText, type: "error" });
+    }
+  }
+);
+
+export const uploadProfilePicture = createAsyncThunk(
+  "user/uploadProfilePicture",
+  async ({ token, file }, ThunkAPI) => {
+    try {
+      const formData = new FormData();
+      formData.append("token", token);
+      formData.append("profile_picture", file);
+      const response = await clientServer.post("/user/update-profile", formData, {
+        headers: { "Content-Type": "multipart/form-data" },
+      });
+      return ThunkAPI.fulfillWithValue(response.data);
+    } catch (error) {
+      const errorText = error.response?.data?.message || error.message || "Failed to upload picture";
+      return ThunkAPI.rejectWithValue({ text: errorText, type: "error" });
+    }
+  }
+);

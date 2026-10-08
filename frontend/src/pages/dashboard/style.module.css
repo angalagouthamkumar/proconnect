@@ -203,10 +203,10 @@
   transition: background-color var(--duration-fast) ease;
 }
 
-.actionLeft > *:hover,
+/* .actionLeft > *:hover,
 .instaActions > div:hover {
   background: var(--color-hover);
-}
+} */
 
 .actionIcon {
   width: 24px;

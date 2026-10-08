@@ -4,11 +4,13 @@ import { useRouter } from 'next/router';
 import { useDispatch, useSelector } from 'react-redux';
 import { setTokenIsThere } from '@/config/redux/reducer/authReducer';
 import { getAllUsers, getAboutUser } from '@/config/redux/action/authAction';
+import { getImageUrl } from '../../utils/images.js';
 
 export default function DashboardLayout({ children }) {
   const router = useRouter();
   const dispatch = useDispatch();
   const authState = useSelector((state) => state.auth);
+  const profiles = Array.isArray(authState.allProfiles) ? authState.allProfiles : [];
 
   useEffect(() => {
     const token = localStorage.getItem("token");
@@ -58,24 +60,31 @@ export default function DashboardLayout({ children }) {
           {children}
         </div>
 
-        <div className={Styles.extraContainer}>
-          <h1>top profile</h1>
-          {Array.isArray(authState.allProfiles) && authState.allProfiles.length > 0 ? (
-            authState.allProfiles.map((profile) => {
+        <aside className={Styles.extraContainer}>
+          <h2 className={Styles.panelTitle}>Top profiles</h2>
+
+          {profiles.length > 0 ? (
+            profiles.map((profile) => {
               const name = profile.userId?.name || profile.name || profile.username || "User";
-              const pic = profile.profile_pic || profile.userId?.profile_pic || "/default-avatar.png";
+              const pic = getImageUrl(profile.userId?.profilePicture || profile.profilePicture);
 
               return (
-                <div key={profile._id || profile.id} className={Styles.extraContainer}>
-                  <img src={pic} alt={name} style={{ width: "40px", height: "40px", borderRadius: "50%" }} />
-                  <p>{name}</p>
+                <div key={profile._id || profile.id} className={Styles.panelRow}>
+                  {pic ? (
+                    <img src={pic} alt={name} className={Styles.panelAvatar} />
+                  ) : (
+                    <div className={Styles.panelAvatarFallback} aria-hidden="true">
+                      {(name[0] || "U").toUpperCase()}
+                    </div>
+                  )}
+                  <p className={Styles.panelName}>{name}</p>
                 </div>
               );
             })
           ) : (
-            <p>No profiles found</p>
+            <p className={Styles.panelEmpty}>No profiles found</p>
           )}
-        </div>
+        </aside>
       </div>
     </div>
   );

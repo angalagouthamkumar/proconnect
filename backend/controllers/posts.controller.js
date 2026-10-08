@@ -140,7 +140,7 @@ export const getCommentsByPost = async (req, res) => {
 
         // Query the Comment collection directly filtering by postId
         const comments = await Comment.find({ postId })
-            .populate("userId", "name username");
+            .populate("userId", "name username profilePicture");
 
         return res.status(200).json({ comments });
     } catch (error) {

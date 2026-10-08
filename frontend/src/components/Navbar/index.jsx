@@ -38,7 +38,7 @@ export default function Navbar() {
               <>
                 <div onClick={() => router.push("/dashboard")} className={Style.username}>
                   {authState.profileFetched && authState.user && (
-                    <div>Hey {authState.user.name}</div>
+                    <div onClick={(e) => { e.stopPropagation(); router.push("/profile"); }} className={Style.profileLink}>Hey {authState.user.name}</div>
                   )}
                 </div>
               

@@ -13,6 +13,7 @@ import {
 
 const initialState = {
   user: null,
+  Profile: null,
   isError: false,
   isSuccess: false,
   LoggedIn: false,
@@ -143,6 +144,7 @@ const authSlice = createSlice({
         state.loading = false;
         state.profileFetched = true;
         state.user = action.payload?.user || null;
+        state.profile = action.payload?.profile || null;
       })
 
       .addCase(getAboutUser.rejected, (state) => {
