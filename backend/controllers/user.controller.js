@@ -569,18 +569,49 @@ const rejectConnectionRequest = async (req, res) => {
     }
 };
 
+// 1) In backend/controllers/user.controller.js, REPLACE the whole getUserProfileBasedonUsername
+//    function with this one (same name, same export, route unchanged):
+
 const getUserProfileBasedonUsername = async (req, res) => {
-    const { username } = req.params;
+    // The existing frontend action sends username and token as query parameters
+    const { username, token } = req.query;
     try {
-        const user = await User.findOne({ username: username }).populate('profilePicture', 'url');
+        // Only logged-in users can view profiles
+        if (!token) {
+            return res.status(401).json({ message: "Unauthorized" });
+        }
+        const viewer = await User.findOne({ token });
+        if (!viewer) {
+            return res.status(401).json({ message: "Unauthorized" });
+        }
+        if (!username) {
+            return res.status(400).json({ message: "Username is required" });
+        }
+
+        const escaped = String(username).replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+        const user = await User.findOne({ username: new RegExp("^" + escaped + "$", "i") })
+            .select("name username profilePicture");
         if (!user) {
             return res.status(404).json({ message: "User not found" });
         }
-        const userProfile = await Profile.findOne({ userId: user._id }).populate('userId', 'name email username profilePicture');
-        return res.status(200).json({ message: "User profile retrieved successfully", user: userProfile });
+
+        // Email, password and token are never sent to other users
+        const userProfile = await Profile.findOne({ userId: user._id })
+            .populate("userId", "name username profilePicture");
+
+        const profile = userProfile
+            ? userProfile.toObject()
+            : { userId: user.toObject(), bio: "", currentwork: {}, postwork: [], education: [] };
+
+        return res.status(200).json({ message: "User profile retrieved successfully", user: profile });
     } catch (error) {
         return res.status(500).json({ message: "Failed to retrieve user profile", error: error.message });
     }
 };
+
+// 2) In getAllUsers (same file), change ONLY this one line:
+//
+//    before:  const users = await User.find({ _id: { $ne: currentUser._id } });
+//    after:   const users = await User.find({ _id: { $ne: currentUser._id } }).select("-password -token");
 
 export { activecheck, register, login, uploadprofilepicture, updateProfileData, getUserAndProfile, updateUserProfile, getAllUsers, downloadResume, sendConnectionRequest, acceptConnectionRequest, getMyConnectionsRequests, whatAreMyConnections, rejectConnectionRequest, getUserProfileBasedonUsername };

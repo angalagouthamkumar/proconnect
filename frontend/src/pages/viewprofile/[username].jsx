@@ -8,13 +8,14 @@ import {
   addComment,
   deletePost,
 } from "@/config/redux/action/postAction";
-import { getAboutUser, getAllUsers } from "@/config/redux/action/authAction";
+import { getAboutUser, getAllUsers, getUserProfileByUsername } from "@/config/redux/action/authAction";
 import { resetpostid } from "@/config/redux/reducer/postReducer";
 import UserLayout from "@/layout/userLayout";
 import DashboardLayout from "@/layout/dashboardLayout";
 import { sendConnectionRequest } from '@/config/redux/action/authAction';
 
 import Styles from "./index.module.css";
+import P from "../profile/index.module.css";
 
 const BASE_URL = "http://localhost:5000";
 
@@ -30,9 +31,11 @@ export default function ViewProfile() {
 
   const [commentText, setCommentText] = useState("");
 
-  
-
-  
+  // Layout-only state: which tab is open, and the viewed user's profile data
+  const [tab, setTab] = useState("posts");
+  const [viewedProfile, setViewedProfile] = useState(null);
+  const [profileStatus, setProfileStatus] = useState("loading");
+  const [profileError, setProfileError] = useState("");
 
   useEffect(() => {
     const token =
@@ -49,6 +52,47 @@ export default function ViewProfile() {
       dispatch(getAboutUser({ token }));
     }
   }, [dispatch, authState.user, authState.profileFetched, router]);
+
+  // Load this username's real profile data (bio, work, education)
+  useEffect(() => {
+    if (!username) return;
+    const token =
+      typeof window !== "undefined" ? localStorage.getItem("token") : null;
+    if (!token) return;
+
+    let cancelled = false;
+    setViewedProfile(null);
+    setProfileStatus("loading");
+    setProfileError("");
+
+    dispatch(getUserProfileByUsername({ username, token })).then((result) => {
+      if (cancelled) return;
+      if (getUserProfileByUsername.fulfilled.match(result)) {
+        setViewedProfile(result.payload?.user || null);
+        setProfileStatus("ready");
+      } else {
+        setProfileError(
+          typeof result.payload === "string" ? result.payload : "Could not load this profile"
+        );
+        setProfileStatus("notfound");
+      }
+    });
+
+    return () => {
+      cancelled = true;
+    };
+  }, [dispatch, username]);
+
+  // Your own username is edited on /profile, so send you there
+  useEffect(() => {
+    if (
+      username &&
+      authState.user?.username &&
+      String(authState.user.username).toLowerCase() === String(username).toLowerCase()
+    ) {
+      router.replace("/profile");
+    }
+  }, [username, authState.user, router]);
 
   const currentUserId = authState.user?._id || authState.user?.userId?._id;
 
@@ -132,20 +176,189 @@ export default function ViewProfile() {
         ? authState.connections
         : [];
 
+  // ---- Layout data (read-only, derived from the data above) ----
+  const viewedListItem = profilesList.find((item) => {
+    const u = item.userId || item;
+    return String(u.username || "").toLowerCase() === String(username || "").toLowerCase();
+  });
+  const viewedListUser = viewedListItem?.userId || viewedListItem || {};
+  const headerUser = viewedProfile?.userId || viewedListUser;
+  const headerName = headerUser.name || headerUser.username || username || "User";
+  const headerPicUrl = getImageUrl(headerUser.profilePicture);
+  const headerId = viewedListUser._id || headerUser._id;
+  const connectionStatus = viewedListUser.connectionStatus;
+
+  const bio = viewedProfile?.bio || "";
+  const work = viewedProfile?.currentwork || {};
+  const pastWork = Array.isArray(viewedProfile?.postwork) ? viewedProfile.postwork : [];
+  const education = Array.isArray(viewedProfile?.education) ? viewedProfile.education : [];
+  const headline = [work.position, work.company].filter(Boolean).join(" at ");
+  const likesReceived = userPosts.reduce((sum, post) => {
+    const likes = Array.isArray(post.likes) ? post.likes.length : Number(post.likes) || 0;
+    return sum + likes;
+  }, 0);
+
   return (
     <UserLayout>
       <DashboardLayout>
-        <div className={Styles.home}>
-          {/* Header Bar */}
+        <div className={P.page}>
+          {/* Back */}
           <div className={Styles.navHeader}>
             <button className={Styles.backBtn} onClick={() => router.back()}>
               &larr; Back
             </button>
-            <h2 className={Styles.profileTitle}>@{username}'s Profile</h2>
           </div>
 
-          {/* Posts Feed */}
-          {userPosts.length > 0 ? (
+          {profileStatus === "notfound" ? (
+            <div className={P.card} role="alert">
+              <h2 className={P.cardTitle}>Profile unavailable</h2>
+              <p>{profileError}</p>
+            </div>
+          ) : (
+            <>
+              {/* Profile header (read-only for everyone) */}
+              <section className={P.headerCard} aria-label="Profile header">
+                <div className={P.cover} />
+                <div className={P.headerBody}>
+                  <div className={P.avatarRow}>
+                    <div className={P.avatarWrap}>
+                      {headerPicUrl ? (
+                        <img
+                          src={headerPicUrl}
+                          alt={`${headerName}'s profile`}
+                          className={P.avatar}
+                        />
+                      ) : (
+                        <div className={P.avatarFallback}>
+                          {(headerName[0] || "U").toUpperCase()}
+                        </div>
+                      )}
+                    </div>
+
+                    {connectionStatus === "none" && (
+                      <button
+                        className={P.primaryBtn}
+                        onClick={() => handleConnect(headerId)}
+                      >
+                        Connect
+                      </button>
+                    )}
+                    {connectionStatus === "pending" && (
+                      <button className={P.secondaryBtn} disabled>
+                        Pending
+                      </button>
+                    )}
+                    {connectionStatus === "incoming" && (
+                      <button className={P.secondaryBtn} disabled>
+                        Incoming
+                      </button>
+                    )}
+                    {connectionStatus === "connected" && (
+                      <button className={P.secondaryBtn} disabled>
+                        Connected
+                      </button>
+                    )}
+                  </div>
+
+                  <h1 className={P.displayName}>{headerName}</h1>
+                  <p className={P.handle}>@{headerUser.username || username}</p>
+                  {headline && <span className={P.workBadge}>{headline}</span>}
+                  {bio && <p className={P.bioText}>{bio}</p>}
+
+                  <div className={P.stats}>
+                    <div>
+                      <span className={P.statNumber}>{userPosts.length}</span>
+                      <span className={P.statLabel}>Posts</span>
+                    </div>
+                    <div>
+                      <span className={P.statNumber}>{likesReceived}</span>
+                      <span className={P.statLabel}>Likes received</span>
+                    </div>
+                  </div>
+                </div>
+
+                <div className={P.tabs} role="tablist">
+                  <button
+                    type="button"
+                    role="tab"
+                    aria-selected={tab === "posts"}
+                    className={`${P.tab} ${tab === "posts" ? P.tabActive : ""}`}
+                    onClick={() => setTab("posts")}
+                  >
+                    Posts
+                  </button>
+                  <button
+                    type="button"
+                    role="tab"
+                    aria-selected={tab === "about"}
+                    className={`${P.tab} ${tab === "about" ? P.tabActive : ""}`}
+                    onClick={() => setTab("about")}
+                  >
+                    About
+                  </button>
+                </div>
+              </section>
+
+              {/* About tab */}
+              {tab === "about" && (
+                <div className={P.sections}>
+                  <section className={P.card}>
+                    <h2 className={P.cardTitle}>About</h2>
+                    <p className={P.bioFull}>{bio || "Not added yet"}</p>
+                  </section>
+
+                  <section className={P.card}>
+                    <h2 className={P.cardTitle}>Work</h2>
+                    <div className={P.infoRow}>
+                      <span className={P.infoLabel}>Current</span>
+                      <span className={P.infoValue}>
+                        {headline ? `${headline} · ${Number(work.years) || 0} yr` : "Not added yet"}
+                      </span>
+                    </div>
+                    {pastWork.length === 0 ? (
+                      <div className={P.infoRow}>
+                        <span className={P.infoLabel}>Past</span>
+                        <span className={P.infoValue}>Not added yet</span>
+                      </div>
+                    ) : (
+                      pastWork.map((w, i) => (
+                        <div key={w._id || i} className={P.infoRow}>
+                          <span className={P.infoLabel}>{i === 0 ? "Past" : ""}</span>
+                          <span className={P.infoValue}>
+                            {`${w.position || "Role"} at ${w.company || "Company"} · ${Number(w.years) || 0} yr`}
+                          </span>
+                        </div>
+                      ))
+                    )}
+                  </section>
+
+                  <section className={P.card}>
+                    <h2 className={P.cardTitle}>Education</h2>
+                    {education.length === 0 ? (
+                      <div className={P.infoRow}>
+                        <span className={P.infoLabel}>School</span>
+                        <span className={P.infoValue}>Not added yet</span>
+                      </div>
+                    ) : (
+                      education.map((e, i) => (
+                        <div key={e._id || i} className={P.educationItem}>
+                          <span className={P.infoValue}>
+                            {e.college || e.school || "Institution"}
+                          </span>
+                          <span className={P.infoLabel}>
+                            {[e.degree, e.fieldOfStudy].filter(Boolean).join(" · ") || "Details not added"}
+                          </span>
+                        </div>
+                      ))
+                    )}
+                  </section>
+                </div>
+              )}
+
+              {/* Posts Feed */}
+              {tab === "posts" && (
+                <div className={Styles.home}>
+                {userPosts.length > 0 ? (
             userPosts.map((post) => {
               const postUser =
                 typeof post.userId === "object" ? post.userId : {};
@@ -204,47 +417,6 @@ export default function ViewProfile() {
                         </div>
                       )}
                       <span className={Styles.username}>@{userName}</span>
-                      {userObj.connectionStatus === "none" && (
-                        <button
-                          className={Styles.followBtn}
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            handleConnect(userObj._id);
-                          }}
-                        >
-                          Connect
-                        </button>
-                      )}
-
-                      {userObj.connectionStatus === "pending" && (
-                        <button
-                          className={Styles.followBtn}
-                          disabled
-                          onClick={(e) => e.stopPropagation()}
-                        >
-                          Pending
-                        </button>
-                      )}
-
-                      {userObj.connectionStatus === "incoming" && (
-                        <button
-                          className={Styles.followBtn}
-                          disabled
-                          onClick={(e) => e.stopPropagation()}
-                        >
-                          Incoming
-                        </button>
-                      )}
-
-                      {userObj.connectionStatus === "connected" && (
-                        <button
-                          className={Styles.followBtn}
-                          disabled
-                          onClick={(e) => e.stopPropagation()}
-                        >
-                          Connected
-                        </button>
-                      )}
                     </div>
 
                     {/* Delete Button */}
@@ -404,6 +576,10 @@ export default function ViewProfile() {
             <p className={Styles.noPosts}>
               No posts available for @{username}.
             </p>
+          )}
+                </div>
+              )}
+            </>
           )}
         </div>
 

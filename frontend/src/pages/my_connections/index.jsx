@@ -62,33 +62,52 @@ export default function MyConnections() {
           <h1 className={Styles.title}>My Connections</h1>
 
           {authState.connectionRequests.length === 0 ? (
-            <p className={Styles.empty}>No connection requests found.</p>
+            <p className={Styles.empty}>
+              No connection requests found.
+            </p>
           ) : (
             <div className={Styles.list}>
               {authState.connectionRequests.map((request) => (
-                <div key={request._id}>
-                  <h2>{request.userId?.name}</h2>
+                <div
+                  key={request._id}
+                  className={Styles.connectionCard}
+                >
+                  {/* Left: Profile + Name + Username */}
+                  <div className={Styles.userInfo}>
+                    {request.userId?.profilePicture ? (
+                      <img
+                        src={request.userId.profilePicture}
+                        alt={request.userId.name}
+                        className={Styles.profilePic}
+                      />
+                    ) : (
+                      <div className={Styles.profileFallback}>
+                        {(request.userId?.name?.[0] || "U").toUpperCase()}
+                      </div>
+                    )}
 
-                  <p>{request.userId?.username}</p>
+                    <div className={Styles.userDetails}>
+                      <h2>{request.userId?.name}</h2>
+                      <p>@{request.userId?.username}</p>
+                    </div>
+                  </div>
 
-                  {request.userId?.profilePicture && (
-                    <img
-                      src={request.userId.profilePicture}
-                      alt={request.userId.name}
-                    />
-                  )}
+                  {/* Right: Accept + Reject */}
+                  <div className={Styles.actions}>
+                    <button
+                      className={Styles.acceptButton}
+                      onClick={() => handleAccept(request._id)}
+                    >
+                      Accept
+                    </button>
 
-                  <button
-                    onClick={() => handleAccept(request._id)}
-                  >
-                    Accept
-                  </button>
-
-                  <button
-                    onClick={() => handleReject(request._id)}
-                  >
-                    Reject
-                  </button>
+                    <button
+                      className={Styles.rejectButton}
+                      onClick={() => handleReject(request._id)}
+                    >
+                      Reject
+                    </button>
+                  </div>
                 </div>
               ))}
             </div>

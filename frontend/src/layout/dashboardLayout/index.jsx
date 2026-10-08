@@ -66,6 +66,7 @@ export default function DashboardLayout({ children }) {
           {profiles.length > 0 ? (
             profiles.map((profile) => {
               const name = profile.userId?.name || profile.name || profile.username || "User";
+              const username = profile.userId?.username || profile.username;
               const pic = getImageUrl(profile.userId?.profilePicture || profile.profilePicture);
 
               return (
@@ -77,7 +78,10 @@ export default function DashboardLayout({ children }) {
                       {(name[0] || "U").toUpperCase()}
                     </div>
                   )}
-                  <p className={Styles.panelName}>{name}</p>
+                  <div className={Styles.panelText}>
+                    <p className={Styles.panelName}>{name}</p>
+                    {username && <p className={Styles.panelUsername}>@{username}</p>}
+                  </div>
                 </div>
               );
             })
