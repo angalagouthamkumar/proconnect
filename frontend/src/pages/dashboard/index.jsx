@@ -16,7 +16,7 @@ import DashboardLayout from "@/layout/dashboardLayout";
 import Styles from "./style.module.css";
 import { sendConnectionRequest } from '@/config/redux/action/authAction';
 
-const BASE_URL = "https://proconnect-ljsc.onrender.com";
+import { getImageUrl } from "@/utils/images";
 
 export default function Dashboard() {
   const router = useRouter();
@@ -27,14 +27,25 @@ export default function Dashboard() {
   const [postContent, setPostContent] = useState("");
   const [fileContent, setFileContent] = useState(null);
   const [commentText, setCommentText] = useState("");
+  const [pendingLikeIds, setPendingLikeIds] = useState({});
   // Keep populated author data if the like reducer replaces userId with a plain ID.
   const authorCache = useRef({});
 
   useEffect(() => {
     const token =
-      typeof window !== "undefined" ? localStorage.getItem("token") : null;
+      typeof window !== "undefined"
+        ? localStorage.getItem("token")
+        : null;
+
+    // Session was invalid/expired
+    if (authState.sessionExpired) {
+      router.replace("/login");
+      return;
+    }
+
+    // No token at all
     if (!token) {
-      router.replace("/dashboard");
+      router.replace("/login");
       return;
     }
 
@@ -44,7 +55,13 @@ export default function Dashboard() {
     if (!authState.user || !authState.profileFetched) {
       dispatch(getAboutUser({ token }));
     }
-  }, [dispatch, authState.user, authState.profileFetched]);
+  }, [
+    dispatch,
+    router,
+    authState.user,
+    authState.profileFetched,
+    authState.sessionExpired,
+  ]);
 
   if (!authState.user) {
     return (
@@ -173,8 +190,6 @@ export default function Dashboard() {
     }));
 
     try {
-      console.log("CURRENT USER ID:", currentUserId);
-console.log("POST ID:", post._id);
       const result = await dispatch(
         likePost({
           postId: post._id,
@@ -194,17 +209,6 @@ console.log("POST ID:", post._id);
         return updated;
       });
     }
-  };
-
-  const getImageUrl = (filePath) => {
-    if (!filePath || filePath.trim() === "") return null;
-    if (filePath.startsWith("http://") || filePath.startsWith("https://"))
-      return filePath;
-
-    let cleanPath = filePath.trim();
-    if (cleanPath.startsWith("/")) cleanPath = cleanPath.slice(1);
-
-    return encodeURI(`${BASE_URL}/${cleanPath}`);
   };
   const profilesList =
       Array.isArray(authState.allProfiles) && authState.allProfiles.length > 0
@@ -370,6 +374,7 @@ console.log("POST ID:", post._id);
                           onClick={(e) => {
                             e.stopPropagation();
                             handleConnect(userObj._id);
+                            style={ cursor: "pointer" }
                           }}
                         >
                           Connect
@@ -381,6 +386,7 @@ console.log("POST ID:", post._id);
                           className={Styles.followBtn}
                           disabled
                           onClick={(e) => e.stopPropagation()}
+                          style={{ cursor: "pointer" }}
                         >
                           Pending
                         </button>
@@ -391,6 +397,7 @@ console.log("POST ID:", post._id);
                           className={Styles.followBtn}
                           disabled
                           onClick={(e) => e.stopPropagation()}
+                          style={{ cursor: "pointer" }}
                         >
                           Incoming
                         </button>
@@ -401,6 +408,7 @@ console.log("POST ID:", post._id);
                           className={Styles.followBtn}
                           disabled
                           onClick={(e) => e.stopPropagation()}
+                          style={{ cursor: "pointer" }}
                         >
                           Connected
                         </button>

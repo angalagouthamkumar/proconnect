@@ -13,6 +13,7 @@ import { resetpostid } from "@/config/redux/reducer/postReducer";
 import UserLayout from "@/layout/userLayout";
 import DashboardLayout from "@/layout/dashboardLayout";
 import { sendConnectionRequest } from '@/config/redux/action/authAction';
+import { getImageUrl } from "@/utils/images";
 
 import Styles from "./index.module.css";
 import P from "../profile/index.module.css";
@@ -135,17 +136,30 @@ export default function ViewProfile() {
     }
   };
 
-  const getImageUrl = (filePath) => {
-    if (!filePath || filePath.trim() === "" || filePath === "default.jpg")
-      return null;
-    if (filePath.startsWith("http://") || filePath.startsWith("https://"))
-      return filePath;
+  // const getImageUrl = (filePath) => {
+  //   if (!filePath || typeof filePath !== "string") {
+  //     return null;
+  //   }
 
-    let cleanPath = filePath.trim();
-    if (cleanPath.startsWith("/")) cleanPath = cleanPath.slice(1);
+  //   const cleanPath = filePath.trim();
 
-    return encodeURI(`${BASE_URL}/${cleanPath}`);
-  };
+  //   if (!cleanPath || cleanPath === "default.jpg") {
+  //     return null;
+  //   }
+
+  //   if (
+  //     cleanPath.startsWith("http://") ||
+  //     cleanPath.startsWith("https://")
+  //   ) {
+  //     return cleanPath;
+  //   }
+
+  //   const normalizedPath = cleanPath.startsWith("/")
+  //     ? cleanPath.slice(1)
+  //     : cleanPath;
+
+  //   return encodeURI(`${BASE_URL}/${normalizedPath}`);
+  // };
   const handleConnect = async (connectionId) => {
     const token = localStorage.getItem("token");
 
@@ -221,7 +235,10 @@ export default function ViewProfile() {
     return String(u.username || "").toLowerCase() === String(username || "").toLowerCase();
   });
   const viewedListUser = viewedListItem?.userId || viewedListItem || {};
-  const headerUser = viewedProfile?.userId || viewedListUser;
+  const headerUser =
+    viewedProfile?.userId ||
+    viewedProfile ||
+    viewedListUser;
   const headerName = headerUser.name || headerUser.username || username || "User";
   const headerPicUrl = getImageUrl(headerUser.profilePicture);
   const headerId = viewedListUser._id || headerUser._id;
@@ -269,7 +286,20 @@ export default function ViewProfile() {
                         />
                       ) : (
                         <div className={P.avatarFallback}>
-                          {(headerName[0] || "U").toUpperCase()}
+                          <svg
+                            xmlns="http://www.w3.org/2000/svg"
+                            fill="none"
+                            viewBox="0 0 24 24"
+                            strokeWidth="1.5"
+                            stroke="currentColor"
+                            className={P.defaultAvatarIcon}
+                          >
+                            <path
+                              strokeLinecap="round"
+                              strokeLinejoin="round"
+                              d="M18 7.5v3m0 0v3m0-3h3m-3 0h-3m-2.25-4.125a3.375 3.375 0 1 1-6.75 0 3.375 3.375 0 0 1 6.75 0ZM3 19.235v-.11a6.375 6.375 0 0 1 12.75 0v.109A12.318 12.318 0 0 1 9.374 21c-2.331 0-4.512-.645-6.374-1.766Z"
+                            />
+                          </svg>
                         </div>
                       )}
                     </div>

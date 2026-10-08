@@ -27,7 +27,8 @@ const initialState = {
   token: null,
   loading: false,
   allProfiles: [],
-  postid: null
+  postid: null,
+  sessionExpired: false
 };
 
 const authSlice = createSlice({
@@ -58,6 +59,15 @@ const authSlice = createSlice({
 
     resetpostid: (state) => {
       state.postid = null;
+    },
+    sessionExpired: (state) => {
+      state.user = null;
+      state.token = null;
+      state.isToken = false;
+      state.LoggedIn = false;
+      state.profileFetched = false;
+      state.sessionExpired = true;
+      state.loading = false;
     }
   },
 

@@ -544,3 +544,7 @@
 .resumeDownloadBtn:active {
   transform: translateY(0);
 }
+.topProfileAvatarIcon {
+  width: 20px;
+  height: 20px;
+}

@@ -1,12 +1,14 @@
 import { configureStore } from "@reduxjs/toolkit";
-import authReducer from './reducer/authReducer/index.js';
-import postReducer from './reducer/postReducer/index.js';
+import authReducer from "./reducer/authReducer";
+import postReducer from "./reducer/postReducer";
+import authMiddleware from "./middleware/authMiddleware";
 
-const store = configureStore({
+export const store = configureStore({
   reducer: {
     auth: authReducer,
-    posts: postReducer
+    posts: postReducer,
   },
-});
 
-export default store;
+  middleware: (getDefaultMiddleware) =>
+    getDefaultMiddleware().concat(authMiddleware),
+});

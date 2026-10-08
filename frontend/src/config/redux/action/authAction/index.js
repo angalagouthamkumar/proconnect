@@ -47,19 +47,37 @@ export const registerUser = createAsyncThunk("user/register", async (user, Thunk
     });
   }
 });
-export const getAboutUser = createAsyncThunk("user/getAbout", async (user, ThunkAPI) => {
-  try {
-    // FIXED: Changed /users to /user
-    const response = await clientServer.get(`/user/get_user_and_profile`, { params: { token: user.token } });
-    return ThunkAPI.fulfillWithValue(response.data);
-  } catch (error) {
-    const errorText = error.response?.data?.message || error.message || "Failed to fetch about user";
-    return ThunkAPI.rejectWithValue({
-      text: typeof errorText === "object" ? errorText.message || JSON.stringify(errorText) : errorText,
-      type: "error"
-    });
+export const getAboutUser = createAsyncThunk(
+  "user/getAbout",
+  async (user, ThunkAPI) => {
+    try {
+      const response = await clientServer.get(
+        `/user/get_user_and_profile`,
+        {
+          params: {
+            token: user.token,
+          },
+        }
+      );
+
+      return response.data;
+    } catch (error) {
+      const errorText =
+        error.response?.data?.message ||
+        error.message ||
+        "Failed to fetch about user";
+
+      return ThunkAPI.rejectWithValue({
+        text:
+          typeof errorText === "object"
+            ? errorText.message || JSON.stringify(errorText)
+            : errorText,
+        type: "error",
+        status: error.response?.status,
+      });
+    }
   }
-});
+);
 
 export const getAllUsers = createAsyncThunk("user/getAll", async (user, ThunkAPI) => {
   try {

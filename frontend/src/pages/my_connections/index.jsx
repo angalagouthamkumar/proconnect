@@ -59,24 +59,28 @@ export default function MyConnections() {
     dispatch(getMyConnectionRequests({ token }));
   };
   const getImageUrl = (filePath) => {
-    if (!filePath || filePath.trim() === "" || filePath === "default.jpg") {
+    if (!filePath || typeof filePath !== "string") {
+      return null;
+    }
+
+    const cleanPath = filePath.trim();
+
+    if (!cleanPath || cleanPath === "default.jpg") {
       return null;
     }
 
     if (
-      filePath.startsWith("http://") ||
-      filePath.startsWith("https://")
+      cleanPath.startsWith("http://") ||
+      cleanPath.startsWith("https://")
     ) {
-      return filePath;
+      return cleanPath;
     }
 
-    let cleanPath = filePath.trim();
+    const normalizedPath = cleanPath.startsWith("/")
+      ? cleanPath.slice(1)
+      : cleanPath;
 
-    if (cleanPath.startsWith("/")) {
-      cleanPath = cleanPath.slice(1);
-    }
-
-    return encodeURI(`${BASE_URL}/${cleanPath}`);
+    return encodeURI(`${BASE_URL}/${normalizedPath}`);
   };
 
   return (
@@ -107,8 +111,11 @@ export default function MyConnections() {
                         className={Styles.profilePic}
                       />
                     ) : (
-                      <div className={Styles.profileFallback}>
-                        {(request.userId?.name?.[0] || "U").toUpperCase()}
+                      <div className={Styles.panelAvatarFallback} aria-hidden="true">
+                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth="1.5" stroke="currentColor" className={Styles.topProfileAvatarIcon}>
+                          <path strokeLinecap="round" strokeLinejoin="round" d="M15.75 6a3.75 3.75 0 1 1-7.5 0 3.75 3.75 0 0 1 7.5 0ZM4.501 20.118a7.5 7.5 0 0 1 14.998 0A17.933 17.933 0 0 1 12 21.75c-2.676 0-5.216-.584-7.499-1.632Z" />
+                        </svg>
+
                       </div>
                     )}
 

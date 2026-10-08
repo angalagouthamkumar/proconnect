@@ -283,6 +283,11 @@
   border-radius: 50%;
 }
 
+.defaultAvatarIcon {
+  width: 30px;
+  height: 30px;
+}
+
 .mobileProfileAvatar {
   object-fit: cover;
 }

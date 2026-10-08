@@ -235,3 +235,8 @@
     font-size: 13px;
   }
 }
+
+.topProfileAvatarIcon {
+  width: 20px;
+  height: 20px;
+}
