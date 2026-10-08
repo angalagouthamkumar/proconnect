@@ -48,19 +48,19 @@ const postSlice = createSlice({
         state.posts = state.posts.filter((post) => post._id !== action.payload);
       })
       .addCase(likePost.fulfilled, (state, action) => {
-        const updatedPost = action.payload?.post || action.payload;
-        if (updatedPost && updatedPost._id) {
-          const index = state.posts.findIndex((p) => p._id === updatedPost._id);
-          if (index !== -1) {
-            const currentPost = state.posts[index];
-            const hasPopulatedUser =
-              updatedPost.userId && typeof updatedPost.userId === "object";
-            state.posts[index] = {
-              ...currentPost,
-              ...updatedPost,
-              userId: hasPopulatedUser ? updatedPost.userId : currentPost.userId,
-            };
-          }
+        const updatedPost = action.payload?.post;
+
+        if (!updatedPost?._id) return;
+
+        const index = state.posts.findIndex(
+          (post) => String(post._id) === String(updatedPost._id)
+        );
+
+        if (index !== -1) {
+          state.posts[index] = {
+            ...state.posts[index],
+            ...updatedPost,
+          };
         }
       })
       .addCase(getCommentsByPost.fulfilled, (state, action) => {

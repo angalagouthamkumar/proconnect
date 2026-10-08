@@ -176,19 +176,56 @@ export const deleteComment = async (req, res) => {
 };
 
 export const incrementLikes = async (req, res) => {
-    const { postId } = req.body;
-    try {
-        const post = await Post.findById(postId);
-        if (!post) {
-            return res.status(404).json({ message: "Post not found" });
-        }
+  const { postId, userId } = req.body;
 
-        post.likes += 1;
-        await post.save();
-        await post.populate("userId", "name username email profilePicture");
+  try {
+    const post = await Post.findById(postId);
 
-        return res.status(200).json({ message: "Post liked successfully", post });
-    } catch (error) {
-        return res.status(500).json({ message: "Failed to like post", error: error.message });
+    if (!post) {
+      return res.status(404).json({
+        message: "Post not found",
+      });
     }
+
+    if (!userId) {
+      return res.status(400).json({
+        message: "User ID is required",
+      });
+    }
+
+    const alreadyLiked = post.likes.some(
+      (id) => String(id) === String(userId)
+    );
+
+    if (alreadyLiked) {
+      // UNLIKE
+      post.likes = post.likes.filter(
+        (id) => String(id) !== String(userId)
+      );
+    } else {
+      // LIKE
+      post.likes.push(userId);
+    }
+
+    await post.save();
+
+    await post.populate(
+      "userId",
+      "name username email profilePicture"
+    );
+
+    return res.status(200).json({
+      message: alreadyLiked
+        ? "Post unliked successfully"
+        : "Post liked successfully",
+      post,
+      liked: !alreadyLiked,
+      likesCount: post.likes.length,
+    });
+  } catch (error) {
+    return res.status(500).json({
+      message: "Failed to update like",
+      error: error.message,
+    });
+  }
 };

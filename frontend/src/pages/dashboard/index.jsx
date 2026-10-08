@@ -27,8 +27,6 @@ export default function Dashboard() {
   const [postContent, setPostContent] = useState("");
   const [fileContent, setFileContent] = useState(null);
   const [commentText, setCommentText] = useState("");
-  const [optimisticLikes, setOptimisticLikes] = useState({});
-  const [pendingLikeIds, setPendingLikeIds] = useState({});
   // Keep populated author data if the like reducer replaces userId with a plain ID.
   const authorCache = useRef({});
 
@@ -138,60 +136,55 @@ export default function Dashboard() {
   });
 
   const getPostLikeInfo = (post) => {
-    const postId = String(post._id);
-    const cached = optimisticLikes[postId];
-    const rawLikes = post.likes;
-    const likesCount = Array.isArray(rawLikes)
-      ? rawLikes.length
-      : Number(rawLikes) || 0;
-    const likedUsers = Array.isArray(post.likedBy)
-      ? post.likedBy
-      : Array.isArray(post.likesBy)
-      ? post.likesBy
-      : Array.isArray(rawLikes)
-      ? rawLikes
+    const likedUsers = Array.isArray(post.likes)
+      ? post.likes
       : [];
+
     const isLiked = currentUserId
       ? likedUsers.some((like) => {
           const likeUserId =
-            typeof like === "string" ? like : like?._id || like?.id || like?.userId;
-          return likeUserId && String(likeUserId) === String(currentUserId);
+            typeof like === "string"
+              ? like
+              : like?._id || like?.id || like?.userId;
+
+          return (
+            likeUserId &&
+            String(likeUserId) === String(currentUserId)
+          );
         })
       : false;
 
     return {
-      liked: cached ? cached.liked : isLiked,
-      count: cached ? cached.count : likesCount,
+      liked: isLiked,
+      count: likedUsers.length,
     };
-  };
+    };
 
   const handleLike = async (post) => {
     const postId = String(post._id);
-    if (pendingLikeIds[postId]) return;
 
-    const previous = getPostLikeInfo(post);
-    const next = { liked: !previous.liked, count: Math.max(0, previous.count + (previous.liked ? -1 : 1)) };
+    if (!currentUserId || pendingLikeIds[postId]) {
+      return;
+    }
 
-    setOptimisticLikes((current) => ({ ...current, [postId]: next }));
-    setPendingLikeIds((current) => ({ ...current, [postId]: true }));
+    setPendingLikeIds((current) => ({
+      ...current,
+      [postId]: true,
+    }));
 
     try {
-      const result = await dispatch(likePost({ postId: post._id }));
+      const result = await dispatch(
+        likePost({
+          postId: post._id,
+          userId: currentUserId,
+        })
+      );
+
       if (likePost.rejected.match(result)) {
-        setOptimisticLikes((current) => ({ ...current, [postId]: previous }));
-      } else {
-        // Only sync a numeric count when the API explicitly returns one.
-        const responsePost = result.payload?.post || result.payload?.data || result.payload;
-        const responseLikes = responsePost?.likes;
-        if (typeof responseLikes === "number") {
-          setOptimisticLikes((current) => ({
-            ...current,
-            [postId]: { ...next, count: responseLikes },
-          }));
-        }
+        console.error("Like failed:", result.payload);
       }
     } catch (error) {
-      setOptimisticLikes((current) => ({ ...current, [postId]: previous }));
+      console.error("Like failed:", error);
     } finally {
       setPendingLikeIds((current) => {
         const updated = { ...current };
