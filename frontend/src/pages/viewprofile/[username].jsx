@@ -94,7 +94,46 @@ export default function ViewProfile() {
     }
   }, [username, authState.user, router]);
 
-  const currentUserId = authState.user?._id || authState.user?.userId?._id;
+  const currentUserId =
+    authState.user?._id ||
+    authState.user?.userId?._id;
+
+  const [pendingLikeIds, setPendingLikeIds] = useState({});
+
+  const handleLike = async (post) => {
+    const postId = String(post._id);
+
+    if (!currentUserId || pendingLikeIds[postId]) {
+      console.log("Missing currentUserId:", currentUserId);
+      return;
+    }
+
+    setPendingLikeIds((current) => ({
+      ...current,
+      [postId]: true,
+    }));
+
+    try {
+      const result = await dispatch(
+        likePost({
+          postId: post._id,
+          userId: currentUserId,
+        })
+      );
+
+      if (likePost.rejected.match(result)) {
+        console.error("Like failed:", result.payload);
+      }
+    } catch (error) {
+      console.error("Like failed:", error);
+    } finally {
+      setPendingLikeIds((current) => {
+        const updated = { ...current };
+        delete updated[postId];
+        return updated;
+      });
+    }
+  };
 
   const getImageUrl = (filePath) => {
     if (!filePath || filePath.trim() === "" || filePath === "default.jpg")
@@ -484,9 +523,7 @@ export default function ViewProfile() {
                       {/* Like Button */}
                       <div
                         className={Styles.likeBtn}
-                        onClick={async () =>
-                          await dispatch(likePost({ postId: post._id }))
-                        }
+                        onClick={() => handleLike(post)}
                       >
                         <svg
                           xmlns="http://www.w3.org/2000/svg"
@@ -568,7 +605,7 @@ export default function ViewProfile() {
 
                   {/* Likes Count */}
                   <div className={Styles.likesCount}>
-                    {post.likes || 0} likes
+                    {Array.isArray(post.likes) ? post.likes.length : 0} likes
                   </div>
 
                   {/* Caption */}
