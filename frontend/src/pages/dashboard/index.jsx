@@ -16,7 +16,7 @@ import DashboardLayout from "@/layout/dashboardLayout";
 import Styles from "./style.module.css";
 import { sendConnectionRequest } from '@/config/redux/action/authAction';
 
-const BASE_URL = "http://localhost:5000";
+const BASE_URL = "https://proconnect-ljsc.onrender.com";
 
 export default function Dashboard() {
   const router = useRouter();

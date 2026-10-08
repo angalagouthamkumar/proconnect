@@ -17,7 +17,7 @@ import { sendConnectionRequest } from '@/config/redux/action/authAction';
 import Styles from "./index.module.css";
 import P from "../profile/index.module.css";
 
-const BASE_URL = "http://localhost:5000";
+const BASE_URL = "https://proconnect-ljsc.onrender.com";
 
 export default function ViewProfile() {
   const router = useRouter();
@@ -358,7 +358,7 @@ export default function ViewProfile() {
 
                     {headerUser.resume ? (
                       <a
-                        href={`http://localhost:5000/${headerUser.resume}`}
+                        href={`https://proconnect-ljsc.onrender.com/${headerUser.resume}`}
                         target="_blank"
                         rel="noopener noreferrer"
                         className={P.resumeDownloadBtn}

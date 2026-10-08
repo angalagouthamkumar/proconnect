@@ -309,7 +309,7 @@ export const uploadResume = createAsyncThunk(
       formData.append("resume", file);
 
       const response = await fetch(
-        `http://localhost:5000/user/upload_resume?token=${token}`,
+        `https://proconnect-ljsc.onrender.com/user/upload_resume?token=${token}`,
         {
           method: "POST",
           body: formData,
@@ -336,7 +336,7 @@ export const removeResume = createAsyncThunk(
   async ({ token }, { rejectWithValue }) => {
     try {
       const response = await fetch(
-        `http://localhost:5000/user/remove_resume?token=${token}`,
+        `https://proconnect-ljsc.onrender.com/user/remove_resume?token=${token}`,
         {
           method: "DELETE",
         }

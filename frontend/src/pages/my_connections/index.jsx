@@ -17,7 +17,7 @@ export default function MyConnections() {
   const authState = useSelector((state) => state.auth);
   const router = useRouter();
 
-  const BASE_URL = "http://localhost:5000";
+  const BASE_URL = "https://proconnect-ljsc.onrender.com";
 
   
 

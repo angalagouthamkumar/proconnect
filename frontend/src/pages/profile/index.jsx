@@ -486,7 +486,7 @@ export default function Profile() {
 
                     <div className={Style.formActions}>
                       <a
-                        href={`http://localhost:5000/${user.resume}`}
+                        href={`https://proconnect-ljsc.onrender.com/${user.resume}`}
                         target="_blank"
                         rel="noopener noreferrer"
                         className={Style.resumeDownloadBtn}

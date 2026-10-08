@@ -1,4 +1,4 @@
-export const BASE_URL = "http://localhost:5000";
+export const BASE_URL = "https://proconnect-ljsc.onrender.com";
 
 // Builds a full image URL from a path stored in the database.
 // Returns null for empty values and for the default placeholder picture.

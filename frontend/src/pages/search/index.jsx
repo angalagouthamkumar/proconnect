@@ -7,7 +7,7 @@ import Styles from './index.module.css';
 import { useRouter } from 'next/router';
 import { sendConnectionRequest } from '@/config/redux/action/authAction';
 
-const BASE_URL = "http://localhost:5000";
+const BASE_URL = "https://proconnect-ljsc.onrender.com";
 
 export default function Search() {
   const authState = useSelector((state) => state.auth);
