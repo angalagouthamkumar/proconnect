@@ -300,3 +300,59 @@ export const uploadProfilePicture = createAsyncThunk(
     }
   }
 );
+
+export const uploadResume = createAsyncThunk(
+  "auth/uploadResume",
+  async ({ token, file }, { rejectWithValue }) => {
+    try {
+      const formData = new FormData();
+      formData.append("resume", file);
+
+      const response = await fetch(
+        `http://localhost:5000/user/upload_resume?token=${token}`,
+        {
+          method: "POST",
+          body: formData,
+        }
+      );
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        return rejectWithValue(data);
+      }
+
+      return data;
+    } catch (error) {
+      return rejectWithValue({
+        text: error.message || "Resume upload failed",
+      });
+    }
+  }
+);
+
+export const removeResume = createAsyncThunk(
+  "auth/removeResume",
+  async ({ token }, { rejectWithValue }) => {
+    try {
+      const response = await fetch(
+        `http://localhost:5000/user/remove_resume?token=${token}`,
+        {
+          method: "DELETE",
+        }
+      );
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        return rejectWithValue(data);
+      }
+
+      return data;
+    } catch (error) {
+      return rejectWithValue({
+        text: error.message || "Could not remove resume",
+      });
+    }
+  }
+);

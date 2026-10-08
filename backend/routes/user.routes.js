@@ -1,7 +1,7 @@
 import { Router } from 'express';
 import multer from 'multer';
 import fs from 'fs';
-import { register, uploadprofilepicture, login, updateUserProfile, getUserAndProfile, updateProfileData, getAllUsers, downloadResume, sendConnectionRequest, getMyConnectionsRequests, whatAreMyConnections, acceptConnectionRequest, rejectConnectionRequest,getUserProfileBasedonUsername } from '../controllers/user.controller.js';
+import { register, uploadprofilepicture, login, updateUserProfile, getUserAndProfile, updateProfileData, getAllUsers, downloadResume, sendConnectionRequest, getMyConnectionsRequests, whatAreMyConnections, acceptConnectionRequest, rejectConnectionRequest,getUserProfileBasedonUsername,uploadResume, removeResume } from '../controllers/user.controller.js';
 
 const router = Router();
 const uploadDir = 'profile/';
@@ -28,6 +28,8 @@ router.route('/get_user_and_profile').get(getUserAndProfile);
 router.route('/update_profile_data').post(updateProfileData);
 router.route('/get_all_users').get(getAllUsers);
 router.route('/download_resume').get(downloadResume);
+router.route("/upload_resume").post(upload.single("resume"), uploadResume);
+router.route("/remove_resume").delete(removeResume);
 router.route('/send_connection_request').post(sendConnectionRequest);
 router.get('/get_my_connections', getMyConnectionsRequests);
 router.route('/what_are_my_connections').get(whatAreMyConnections);

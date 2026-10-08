@@ -187,6 +187,8 @@ export default function Navbar() {
                                   <div
                                     key={profile._id || profile.id}
                                     className={Style.mobileProfileRow}
+                                    onClick={() => router.push(`/viewprofile/${username}`)}
+                                    style={{ cursor: "pointer" }}
                                   >
                                     {pic ? (
                                       <img

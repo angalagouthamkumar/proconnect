@@ -27,6 +27,10 @@ const userSchema = new mongoose.Schema({
     type: String,
     default: "default.jpg"
   },
+  resume: {
+    type: String,
+    default: ""
+  },
   token: {
     type: String,
     default: ""

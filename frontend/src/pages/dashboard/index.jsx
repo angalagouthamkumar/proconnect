@@ -343,7 +343,7 @@ export default function Dashboard() {
                   <div key={post._id} className={Styles.instaCard}>
                     {/* Header */}
                     <div className={Styles.instaHeader}>
-                      <div className={Styles.headerLeft}>
+                      <div onClick={() => router.push(`/viewprofile/${userName}`)} className={Styles.headerLeft}>
                         {userPic && userPic !== "default.jpg" ? (
                           <img
                             src={getImageUrl(userPic)}

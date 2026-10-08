@@ -9,6 +9,8 @@ import {
   updateUserDetails,
   updateProfileInfo,
   uploadProfilePicture,
+  uploadResume,
+  removeResume
 } from "@/config/redux/action/authAction";
 import { getallposts } from "@/config/redux/action/postAction";
 import Style from "./index.module.css";
@@ -65,6 +67,7 @@ export default function Profile() {
   const authState = useSelector((state) => state.auth);
   const postState = useSelector((state) => state.posts);
   const fileInput = useRef(null);
+  const resumeInput = useRef(null);
 
   const [tab, setTab] = useState("about");
   const [isEditing, setIsEditing] = useState(false);
@@ -73,6 +76,7 @@ export default function Profile() {
   const [feedback, setFeedback] = useState(null);
   const [errors, setErrors] = useState({});
   const [form, setForm] = useState(null);
+  const [resumeUploading, setResumeUploading] = useState(false);
 
   const user = authState.user;
   const profile = authState.profile;
@@ -250,6 +254,8 @@ export default function Profile() {
       return;
     }
 
+    
+
     const token = localStorage.getItem("token");
     setUploading(true);
     setFeedback(null);
@@ -261,6 +267,81 @@ export default function Profile() {
       setFeedback({ type: "error", text: result.payload?.text || "Picture upload failed" });
     }
     setUploading(false);
+  };
+
+  const handleResumeUpload = async (e) => {
+    const file = e.target.files?.[0];
+    e.target.value = "";
+
+    if (!file || !isOwner) return;
+
+    if (
+      file.type !== "application/pdf" &&
+      file.type !== "application/msword" &&
+      file.type !==
+        "application/vnd.openxmlformats-officedocument.wordprocessingml.document"
+    ) {
+      setFeedback({
+        type: "error",
+        text: "Please choose a PDF, DOC or DOCX file",
+      });
+      return;
+    }
+
+    if (file.size > 10 * 1024 * 1024) {
+      setFeedback({
+        type: "error",
+        text: "Resume must be 10 MB or smaller",
+      });
+      return;
+    }
+
+    const token = localStorage.getItem("token");
+
+    setResumeUploading(true);
+    setFeedback(null);
+
+    const result = await dispatch(uploadResume({ token, file }));
+
+    if (uploadResume.fulfilled.match(result)) {
+      await refreshAll(token);
+      setFeedback({
+        type: "success",
+        text: "Resume uploaded successfully",
+      });
+    } else {
+      setFeedback({
+        type: "error",
+        text: result.payload?.text || "Resume upload failed",
+      });
+    }
+
+    setResumeUploading(false);
+  };
+
+  const handleRemoveResume = async () => {
+    const token = localStorage.getItem("token");
+
+    setResumeUploading(true);
+    setFeedback(null);
+
+    const result = await dispatch(removeResume({ token }));
+
+    if (removeResume.fulfilled.match(result)) {
+      await refreshAll(token);
+
+      setFeedback({
+        type: "success",
+        text: "Resume removed successfully",
+      });
+    } else {
+      setFeedback({
+        type: "error",
+        text: result.payload?.text || "Could not remove resume",
+      });
+    }
+
+    setResumeUploading(false);
   };
 
   return (
@@ -391,6 +472,61 @@ export default function Profile() {
                       </span>
                     </div>
                   ))
+                )}
+              </section>
+
+              <section className={Style.card}>
+                <h2 className={Style.cardTitle}>Resume</h2>
+
+                {user.resume ? (
+                  <div>
+                    <p className={Style.infoValue}>
+                      Resume uploaded
+                    </p>
+
+                    <div className={Style.formActions}>
+                      <a
+                        href={`http://localhost:5000/${user.resume}`}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className={Style.resumeDownloadBtn}
+                      >
+                        Download
+                      </a>
+
+                      <button
+                        type="button"
+                        className={Style.removeBtn}
+                        onClick={handleRemoveResume}
+                        disabled={resumeUploading}
+                      >
+                        {resumeUploading ? "Removing..." : "Remove"}
+                      </button>
+                    </div>
+                  </div>
+                ) : (
+                  <div>
+                    <p className={Style.infoValue}>
+                      Resume not uploaded
+                    </p>
+
+                    <button
+                      type="button"
+                      className={Style.primaryBtn}
+                      onClick={() => resumeInput.current?.click()}
+                      disabled={resumeUploading}
+                    >
+                      {resumeUploading ? "Uploading..." : "Upload Resume"}
+                    </button>
+
+                    <input
+                      ref={resumeInput}
+                      type="file"
+                      accept=".pdf,.doc,.docx"
+                      onChange={handleResumeUpload}
+                      hidden
+                    />
+                  </div>
                 )}
               </section>
 

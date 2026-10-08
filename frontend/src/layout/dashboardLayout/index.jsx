@@ -70,7 +70,7 @@ export default function DashboardLayout({ children }) {
               const pic = getImageUrl(profile.userId?.profilePicture || profile.profilePicture);
 
               return (
-                <div key={profile._id || profile.id} className={Styles.panelRow}>
+                <div key={profile._id || profile.id} className={Styles.panelRow} onClick={() => router.push(`/viewprofile/${username}`)} style={{ cursor: "pointer" }}>
                   {pic ? (
                     <img src={pic} alt={name} className={Styles.panelAvatar} />
                   ) : (

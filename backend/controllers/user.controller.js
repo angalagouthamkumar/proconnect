@@ -359,6 +359,82 @@ const downloadResume = async (req, res) => {
     return res.json({ message: "Resume downloaded successfully", resume: outputpath });
 };
 
+const uploadResume = async (req, res) => {
+  try {
+    const token = req.query.token;
+
+    if (!token) {
+      return res.status(401).json({
+        text: "Authentication token is required"
+      });
+    }
+
+    const user = await User.findOne({ token });
+
+    if (!user) {
+      return res.status(401).json({
+        text: "Invalid token"
+      });
+    }
+
+    if (!req.file) {
+      return res.status(400).json({
+        text: "Please select a resume"
+      });
+    }
+
+    user.resume = req.file.path.replace(/\\/g, "/");
+
+    await user.save();
+
+    return res.status(200).json({
+      message: "Resume uploaded successfully",
+      resume: user.resume
+    });
+
+  } catch (error) {
+    return res.status(500).json({
+      text: "Resume upload failed",
+      error: error.message
+    });
+  }
+};
+
+export const removeResume = async (req, res) => {
+  try {
+    const token = req.query.token;
+
+    if (!token) {
+      return res.status(401).json({
+        text: "Authentication token is required"
+      });
+    }
+
+    const user = await User.findOne({ token });
+
+    if (!user) {
+      return res.status(401).json({
+        text: "Invalid token"
+      });
+    }
+
+    user.resume = "";
+
+    await user.save();
+
+    return res.status(200).json({
+      message: "Resume removed successfully"
+    });
+
+  } catch (error) {
+    return res.status(500).json({
+      text: "Could not remove resume",
+      error: error.message
+    });
+  }
+};
+
+
 const sendConnectionRequest = async (req, res) => {
     const { token, connectionId } = req.body;
 
@@ -590,14 +666,14 @@ const getUserProfileBasedonUsername = async (req, res) => {
 
         const escaped = String(username).replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
         const user = await User.findOne({ username: new RegExp("^" + escaped + "$", "i") })
-            .select("name username profilePicture");
+            .select("name username profilePicture resume");
         if (!user) {
             return res.status(404).json({ message: "User not found" });
         }
 
         // Email, password and token are never sent to other users
         const userProfile = await Profile.findOne({ userId: user._id })
-            .populate("userId", "name username profilePicture");
+            .populate("userId", "name username profilePicture resume");
 
         const profile = userProfile
             ? userProfile.toObject()
@@ -614,4 +690,4 @@ const getUserProfileBasedonUsername = async (req, res) => {
 //    before:  const users = await User.find({ _id: { $ne: currentUser._id } });
 //    after:   const users = await User.find({ _id: { $ne: currentUser._id } }).select("-password -token");
 
-export { activecheck, register, login, uploadprofilepicture, updateProfileData, getUserAndProfile, updateUserProfile, getAllUsers, downloadResume, sendConnectionRequest, acceptConnectionRequest, getMyConnectionsRequests, whatAreMyConnections, rejectConnectionRequest, getUserProfileBasedonUsername };
+export { uploadResume, activecheck, register, login, uploadprofilepicture, updateProfileData, getUserAndProfile, updateUserProfile, getAllUsers, downloadResume, sendConnectionRequest, acceptConnectionRequest, getMyConnectionsRequests, whatAreMyConnections, rejectConnectionRequest, getUserProfileBasedonUsername };

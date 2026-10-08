@@ -352,6 +352,25 @@ export default function ViewProfile() {
                       ))
                     )}
                   </section>
+
+                  <section className={P.card}>
+                    <h2 className={P.cardTitle}>Resume</h2>
+
+                    {headerUser.resume ? (
+                      <a
+                        href={`http://localhost:5000/${headerUser.resume}`}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className={P.resumeDownloadBtn}
+                      >
+                        Download
+                      </a>
+                    ) : (
+                      <p className={P.infoValue}>
+                        Resume not uploaded
+                      </p>
+                    )}
+                  </section>
                 </div>
               )}
 

@@ -10,10 +10,14 @@ import {
   rejectConnectionRequest,
   getMyConnections
 } from "@/config/redux/action/authAction";
+import { useRouter } from "next/router";
 
 export default function MyConnections() {
   const dispatch = useDispatch();
   const authState = useSelector((state) => state.auth);
+  const router = useRouter();
+
+  const BASE_URL = "http://localhost:5000";
 
   
 
@@ -54,6 +58,26 @@ export default function MyConnections() {
 
     dispatch(getMyConnectionRequests({ token }));
   };
+  const getImageUrl = (filePath) => {
+    if (!filePath || filePath.trim() === "" || filePath === "default.jpg") {
+      return null;
+    }
+
+    if (
+      filePath.startsWith("http://") ||
+      filePath.startsWith("https://")
+    ) {
+      return filePath;
+    }
+
+    let cleanPath = filePath.trim();
+
+    if (cleanPath.startsWith("/")) {
+      cleanPath = cleanPath.slice(1);
+    }
+
+    return encodeURI(`${BASE_URL}/${cleanPath}`);
+  };
 
   return (
     <UserLayout>
@@ -71,12 +95,14 @@ export default function MyConnections() {
                 <div
                   key={request._id}
                   className={Styles.connectionCard}
+                  onClick={() => router.push(`/viewprofile/${request.userId.username}`)}
+                  style={{ cursor: "pointer" }}
                 >
                   {/* Left: Profile + Name + Username */}
                   <div className={Styles.userInfo}>
                     {request.userId?.profilePicture ? (
                       <img
-                        src={request.userId.profilePicture}
+                        src={getImageUrl(request.userId.profilePicture)}
                         alt={request.userId.name}
                         className={Styles.profilePic}
                       />
@@ -96,14 +122,20 @@ export default function MyConnections() {
                   <div className={Styles.actions}>
                     <button
                       className={Styles.acceptButton}
-                      onClick={() => handleAccept(request._id)}
+                      onClick={(e) => {
+                      e.stopPropagation();
+                      handleAccept(request._id);
+                    }}
                     >
                       Accept
                     </button>
 
                     <button
                       className={Styles.rejectButton}
-                      onClick={() => handleReject(request._id)}
+                      onClick={(e) => {
+                      e.stopPropagation();
+                      handleReject(request._id);
+                    }}
                     >
                       Reject
                     </button>
