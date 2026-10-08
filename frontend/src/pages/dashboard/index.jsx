@@ -173,6 +173,8 @@ export default function Dashboard() {
     }));
 
     try {
+      console.log("CURRENT USER ID:", currentUserId);
+console.log("POST ID:", post._id);
       const result = await dispatch(
         likePost({
           postId: post._id,
