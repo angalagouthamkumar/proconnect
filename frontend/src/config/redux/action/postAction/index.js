@@ -88,22 +88,37 @@ export const likePost = createAsyncThunk(
     try {
       const token = localStorage.getItem("token");
 
+      console.log("🔥 LIKE THUNK");
+      console.log("postId:", postId);
+      console.log("userId:", userId);
+      console.log("token exists:", !!token);
+
       const response = await clientServer.post("/posts/like", {
         postId,
         userId,
         token,
       });
 
+      console.log("🔥 LIKE RESPONSE:", response.data);
+
       if (response.status === 200 || response.status === 201) {
-        // Return server response data containing updated post
         return response.data;
-      } else {
-        return ThunkAPI.rejectWithValue("Failed to update like status");
       }
+
+      return ThunkAPI.rejectWithValue(
+        "Failed to update like status"
+      );
     } catch (error) {
-      const errorMsg =
-        error.response?.data?.message || error.message || "Failed to update like status";
-      return ThunkAPI.rejectWithValue(errorMsg);
+      console.error(
+        "🔥 LIKE ERROR:",
+        error.response?.data || error.message
+      );
+
+      return ThunkAPI.rejectWithValue(
+        error.response?.data?.message ||
+        error.message ||
+        "Failed to update like status"
+      );
     }
   }
 );
