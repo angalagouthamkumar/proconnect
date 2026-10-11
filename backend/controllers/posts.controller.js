@@ -174,7 +174,6 @@ export const deleteComment = async (req, res) => {
         return res.status(500).json({ message: "Comment deletion failed", error: error.message });
     }
 };
-
 export const incrementLikes = async (req, res) => {
   const { postId, userId } = req.body;
 
@@ -193,17 +192,20 @@ export const incrementLikes = async (req, res) => {
       });
     }
 
+    // Make sure likes is always an array
+    if (!Array.isArray(post.likes)) {
+      post.likes = [];
+    }
+
     const alreadyLiked = post.likes.some(
       (id) => String(id) === String(userId)
     );
 
     if (alreadyLiked) {
-      // UNLIKE
       post.likes = post.likes.filter(
         (id) => String(id) !== String(userId)
       );
     } else {
-      // LIKE
       post.likes.push(userId);
     }
 
@@ -223,6 +225,8 @@ export const incrementLikes = async (req, res) => {
       likesCount: post.likes.length,
     });
   } catch (error) {
+    console.error("LIKE ERROR:", error);
+
     return res.status(500).json({
       message: "Failed to update like",
       error: error.message,

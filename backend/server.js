@@ -4,7 +4,7 @@ import mongoose from 'mongoose';
 import dotenv from 'dotenv';
 import postsRoutes from './routes/posts.routes.js';
 import userRoutes from './routes/user.routes.js';
-
+import path from 'path';
 
 dotenv.config();
 
@@ -13,10 +13,11 @@ const app = express();
 app.use(cors());
 app.use(express.json());
 app.use('/uploads', express.static('uploads'));
+app.use('/profile', express.static(path.join(process.cwd(), 'profile')));
 
 app.use('/user', userRoutes);
 app.use('/posts', postsRoutes);
-app.use('/profile', express.static('profile'));
+// app.use('/profile', express.static('profile'));
 
 const PORT = process.env.PORT || 5000;
 const MONGO_URI = process.env.MONGO_URI || process.env.mongo_uri;
